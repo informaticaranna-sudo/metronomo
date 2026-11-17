@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&display=swap" rel="stylesheet">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#ffd23f">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Metrônomo de Regência</title>
+<style>
+:root{
+  --bg:#fff4d6; --panel:#ffffff; --ink:#3b2a5a; --mute:#8a6fb0; --line:#3b2a5a;
+  --c0:#4a4a68; --c1:#2f6bff; --c2:#19b86a; --c3:#ff4d6d; --prep:#1fb6ff; --sun:#ffd23f;
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%}
+body{background:var(--bg);color:var(--ink);font-family:"Baloo 2","Fredoka","Chalkboard SE","Comic Sans MS","Trebuchet MS",system-ui,sans-serif;
+  display:flex;flex-direction:column;align-items:center;padding:16px;gap:16px;position:relative;overflow-x:hidden;
+  background-image:radial-gradient(circle at 12% 18%,#ffe08a 0 60px,transparent 61px),radial-gradient(circle at 92% 8%,#bfe8ff 0 80px,transparent 81px),radial-gradient(circle at 95% 95%,#ffc9d9 0 90px,transparent 91px),radial-gradient(circle at 5% 90%,#c9f5d9 0 70px,transparent 71px);
+  background-attachment:fixed}
+h1{font-size:1.9rem;margin:2px 0 0;font-weight:800;text-align:center;line-height:1.1}
+h1 .r{color:var(--c3)} h1 .b{color:var(--c1)} h1 .g{color:var(--c2)}
+h1 small{display:block;font-size:.95rem;font-weight:600;color:var(--mute);margin-top:2px}
+#stage{width:min(92vw,520px);aspect-ratio:1/1;background:var(--panel);border:4px solid var(--line);border-radius:28px;box-shadow:0 7px 0 var(--line)}
+svg{width:100%;height:100%;display:block}
+.seg{fill:none;stroke-width:1.1;stroke-linecap:round;stroke-dasharray:.1 2.2;opacity:.45}
+.seg.on{stroke-width:2.1;stroke-dasharray:none;opacity:1}
+.pt{stroke:#fff;stroke-width:.8}
+.pt.hit{transform-box:fill-box;transform-origin:center;animation:hit .3s ease-out}
+@keyframes hit{0%{transform:scale(1.7)}60%{transform:scale(.9)}100%{transform:scale(1)}}
+.num{font-size:5px;font-weight:800;fill:#fff;pointer-events:none}
+.prep{stroke:var(--prep);stroke-width:1;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.preptxt{font-size:4px;font-weight:700;fill:var(--prep)}
+.panel{width:min(92vw,520px);background:var(--panel);border:4px solid var(--line);border-radius:28px;box-shadow:0 7px 0 var(--line);padding:16px;display:flex;flex-direction:column;gap:16px}
+.sigs{display:flex;flex-wrap:wrap;gap:8px}
+.sigs button{flex:1 1 30%;padding:8px 6px;border-radius:16px;border:3px solid var(--line);background:#f4f0ff;color:var(--ink);cursor:pointer;font:inherit;font-weight:800;font-size:1.15rem;line-height:1.15;box-shadow:0 4px 0 var(--line);transition:transform .1s}
+.sigs button small{display:block;color:var(--mute);font-size:.72rem;font-weight:600}
+.sigs button:active{transform:translateY(3px);box-shadow:0 1px 0 var(--line)}
+.sigs button[aria-pressed=true]{background:var(--sun);}
+.sigs button[aria-pressed=true] small{color:var(--ink)}
+.tempo{display:flex;align-items:center;gap:10px}
+.step{width:58px;height:58px;border-radius:50%;border:3px solid var(--line);background:var(--c2);color:#fff;font:inherit;font-size:2rem;font-weight:800;line-height:1;cursor:pointer;touch-action:manipulation;box-shadow:0 5px 0 var(--line)}
+#minus{background:var(--c3)}
+.step:active{transform:translateY(4px);box-shadow:0 1px 0 var(--line)}
+#bpmBox{flex:1;text-align:center}
+#bpm{font-size:3.6rem;font-weight:800;line-height:1;font-variant-numeric:tabular-nums;color:var(--c1)}
+#bpmLbl{color:var(--mute);font-size:.95rem;font-weight:600}
+input[type=range]{width:100%;height:30px;accent-color:var(--c3);margin:6px 0 0}
+.row{display:flex;gap:10px}
+#play{flex:2;padding:14px;border-radius:20px;border:3px solid var(--line);background:var(--c2);color:#fff;font:inherit;font-weight:800;font-size:1.5rem;cursor:pointer;box-shadow:0 6px 0 var(--line)}
+#play[aria-pressed=true]{background:var(--c3)}
+#tap{flex:1;padding:14px;border-radius:20px;border:3px solid var(--line);background:var(--sun);color:var(--ink);font:inherit;font-weight:800;font-size:1.1rem;cursor:pointer;box-shadow:0 6px 0 var(--line)}
+#play:active,#tap:active{transform:translateY(5px);box-shadow:0 1px 0 var(--line)}
+button:focus-visible,input:focus-visible{outline:4px solid var(--prep);outline-offset:3px}
+.hint{color:var(--mute);font-size:.8rem;text-align:center;margin:0}
+@media (prefers-reduced-motion: reduce){.pt.hit{animation:none}}
+[hidden]{display:none!important}
+#install{padding:10px 18px;border-radius:18px;border:3px solid var(--line);background:var(--c1);color:#fff;font:inherit;font-weight:800;font-size:1.05rem;cursor:pointer;box-shadow:0 5px 0 var(--line)}
+#install:active{transform:translateY(4px);box-shadow:0 1px 0 var(--line)}
+.sigs button{position:relative}
+.del{position:absolute;top:-9px;right:-6px;width:24px;height:24px;border-radius:50%;background:var(--c3);color:#fff;font-size:.7rem;line-height:19px;border:2px solid var(--line);text-align:center}
+details#creator{border:3px dashed var(--line);border-radius:18px;padding:8px 12px;background:#fffbea}
+details#creator summary{font-weight:800;font-size:1.1rem;cursor:pointer}
+.form{display:flex;flex-direction:column;gap:10px;margin-top:10px}
+.form label{display:flex;flex-direction:column;gap:3px;font-weight:700;font-size:.9rem}
+.form input,.form select{font:inherit;padding:8px 10px;border-radius:12px;border:3px solid var(--line);background:#fff;color:var(--ink)}
+#cAdd{padding:11px;border-radius:16px;border:3px solid var(--line);background:var(--c2);color:#fff;font:inherit;font-weight:800;font-size:1.1rem;cursor:pointer;box-shadow:0 5px 0 var(--line)}
+#cAdd:active{transform:translateY(4px);box-shadow:0 1px 0 var(--line)}
+.chars{display:flex;align-items:center;gap:8px;font-weight:800;font-size:1.05rem}
+.chars span{flex:1}
+.chars button{width:54px;height:54px;border-radius:18px;border:3px solid var(--line);background:#f4f0ff;font-size:1.8rem;line-height:1;cursor:pointer;box-shadow:0 4px 0 var(--line);touch-action:manipulation}
+.chars button:active{transform:translateY(3px);box-shadow:0 1px 0 var(--line)}
+.chars button[aria-pressed=true]{background:var(--sun)}
+</style>
+</head>
+<body>
+<h1>🎵 <span class="r">Meu</span> <span class="b">Metrônomo</span> <span class="g">Maestro</span> 🎶<small>Siga a bolinha e aprenda a reger!</small></h1>
+<button id="install" hidden>📲 Instalar app</button>
+<p class="hint" id="iosHint" hidden>📲 No iPhone: toque em Compartilhar e depois em “Adicionar à Tela de Início”.</p>
+
+<div id="stage"><svg id="svg" viewBox="0 0 100 100" role="img" aria-label="Movimento de regência do compasso"></svg></div>
+
+<div class="panel">
+  <div class="sigs" id="sigs"></div>
+
+  <details id="creator">
+    <summary>➕ Criar meu compasso</summary>
+    <div class="form">
+      <label>Quantos pulsos? <input type="number" id="cN" min="2" max="16" value="5"></label>
+      <label>Como agrupar?
+        <select id="cG">
+          <option value="1">Cada pulso é um tempo (simples)</option>
+          <option value="2">De 2 em 2</option>
+          <option value="3">De 3 em 3 (composto)</option>
+          <option value="4">De 4 em 4</option>
+        </select>
+      </label>
+      <label>Ou grupos irregulares <input type="text" id="cT" placeholder="ex.: 3+2 ou 2+2+3"></label>
+      <label>Nome (opcional) <input type="text" id="cName" placeholder="ex.: 5/4" maxlength="8"></label>
+      <button id="cAdd" type="button">✨ Criar e usar</button>
+      <p class="hint" id="cMsg"></p>
+    </div>
+  </details>
+
+  <div class="chars" id="chars"></div>
+
+  <div>
+    <div class="tempo">
+      <button class="step" id="minus" aria-label="Diminuir andamento">−</button>
+      <div id="bpmBox"><div id="bpm">80</div><div id="bpmLbl">batidas por minuto 🥁</div></div>
+      <button class="step" id="plus" aria-label="Aumentar andamento">+</button>
+    </div>
+    <input type="range" id="slider" min="30" max="240" value="80" aria-label="Andamento">
+  </div>
+
+  <div class="row">
+    <button id="play" aria-pressed="false">▶ Vamos!</button>
+    <button id="tap">👆 Tap</button>
+  </div>
+  <p class="hint">Dica: aperte Espaço para começar e parar ✨</p>
+</div>
+
+<script>
+/* Pontos (x,y) em grade 0–100, baseados nos diagramas. Cores: índice da cor de cada pulso. */
+const PATTERNS = [
+  {id:'2/4', name:'Binário simples',  pts:[[50,88],[50,20]], col:[0,1], accent:[0]},
+  {id:'3/4', name:'Ternário simples', pts:[[30,88],[88,56],[34,20]], col:[0,1,2], accent:[0]},
+  {id:'4/4', name:'Quaternário simples', pts:[[52,88],[10,64],[90,49],[56,20]], col:[0,1,2,3], accent:[0]},
+  {id:'6/8', name:'Binário composto', pts:[[48,85],[29,75],[10,64],[74,55],[90,49],[57,25]], col:[0,0,0,1,1,1], accent:[0,3]},
+  {id:'9/8', name:'Ternário composto', pts:[[45,85],[27,78],[10,69],[63,64],[76,60],[90,56],[74,32],[60,26],[46,20]], col:[0,0,0,1,1,1,2,2,2], accent:[0,3,6]},
+  {id:'12/8', name:'Quaternário composto', pts:[[47,90],[58,88],[69,86],[29,80],[19,76],[10,72],[66,65],[78,62],[90,58],[25,39],[63,32],[44,20]], col:[0,0,0,1,1,1,2,2,2,3,3,3], accent:[0,3,6,9]}
+];
+const NS = 'http://www.w3.org/2000/svg';
+const $ = id => document.getElementById(id);
+const svg = $('svg');
+
+let pat = PATTERNS[2], segs = [], pointEls = [], dot, bpm = 80;
+let ctx = null, playing = false, queue = [], cur = null, nextTime = 0, nextBeat = 0, timer = null;
+
+function el(name, attrs, parent){
+  const e = document.createElementNS(NS, name);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  (parent || svg).appendChild(e);
+  return e;
+}
+const f = n => Math.round(n*10)/10;
+
+function segPath(i){
+  const n = pat.pts.length, P = pat.pts[i], Q = pat.pts[(i+1)%n];
+  if (i === n-1){                       // último pulso: sobe (rebote) e desce para o 1
+    const tx = P[0]+2, ty = 4;
+    return `M${f(P[0])},${f(P[1])} C${f(P[0]-8)},${f(P[1]-6)} ${f(P[0]-6)},${ty} ${f(tx)},${ty} ` +
+           `C${f(tx+9)},${ty} ${f(Q[0]+6)},${f((ty+Q[1])/2)} ${f(Q[0])},${f(Q[1])}`;
+  }
+  const mx = (P[0]+Q[0])/2, my = (P[1]+Q[1])/2;
+  const dist = Math.hypot(Q[0]-P[0], Q[1]-P[1]);
+  const vertical = Math.abs(Q[0]-P[0]) < 8;
+  const cx = vertical ? mx + 34 : mx, cy = vertical ? my : my - dist*0.55;
+  return `M${f(P[0])},${f(P[1])} Q${f(cx)},${f(cy)} ${f(Q[0])},${f(Q[1])}`;
+}
+
+function build(){
+  svg.innerHTML = '';
+  segs = []; pointEls = [];
+  const n = pat.pts.length;
+  // seta de preparação
+  const p1 = pat.pts[0];
+  el('line', {x1:p1[0]+7, y1:p1[1]-18, x2:p1[0]+7, y2:p1[1]+3, class:'prep'});
+  el('path', {d:`M${p1[0]+5},${p1[1]-1} L${p1[0]+7},${p1[1]+3} L${p1[0]+9},${p1[1]-1}`, class:'prep'});
+  const t = el('text', {x:p1[0]+10, y:p1[1]-14, class:'preptxt'}); t.textContent = 'Preparação';
+  for (let i=0;i<n;i++){
+    segs.push(el('path', {d:segPath(i), class:'seg', stroke:`var(--c${pat.col[i]})`}));
+  }
+  for (let i=0;i<n;i++){
+    const [x,y] = pat.pts[i];
+    pointEls.push(el('circle', {cx:x, cy:y, r:4.4, fill:`var(--c${pat.col[i]})`, class:'pt'}));
+    const tx = el('text', {x:x, y:y+1.8, class:'num', 'text-anchor':'middle'}); tx.textContent = i+1;
+  }
+  dot = el('g', {id:'dot', transform:`translate(${p1[0]} ${p1[1]})`});
+  drawChar(dot, charKind);
+}
+
+function buildSigs(){
+  const box = $('sigs'); box.innerHTML = '';
+  PATTERNS.concat(custom).forEach(p => {
+    const b = document.createElement('button');
+    b.innerHTML = `${p.id}<small>${p.name}</small>`;
+    b.setAttribute('aria-pressed', p === pat);
+    b.onclick = () => choose(p);
+    if (p.custom){
+      const d = document.createElement('span');
+      d.className = 'del'; d.textContent = '✖'; d.setAttribute('role','button'); d.setAttribute('aria-label','Apagar compasso');
+      d.onclick = e => { e.stopPropagation(); custom = custom.filter(c => c !== p); saveCustom(); if (pat === p) choose(PATTERNS[2]); else buildSigs(); };
+      b.appendChild(d);
+    }
+    box.appendChild(b);
+  });
+}
+
+/* ---------- Áudio ---------- */
+function click(time, beat){
+  const o = ctx.createOscillator(), g = ctx.createGain();
+  const strong = beat === 0, group = pat.accent.includes(beat);
+  o.frequency.value = strong ? 1250 : group ? 900 : 650;
+  const peak = strong ? .9 : group ? .65 : .45;
+  g.gain.setValueAtTime(0, time);
+  g.gain.linearRampToValueAtTime(peak, time + .002);
+  g.gain.exponentialRampToValueAtTime(.001, time + .06);
+  o.connect(g).connect(ctx.destination);
+  o.start(time); o.stop(time + .07);
+}
+function scheduler(){
+  while (nextTime < ctx.currentTime + .12){
+    const dur = 60 / bpm;
+    click(nextTime, nextBeat);
+    queue.push({beat:nextBeat, time:nextTime, dur});
+    nextTime += dur;
+    nextBeat = (nextBeat + 1) % pat.pts.length;
+  }
+}
+function start(){
+  if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
+  ctx.resume();
+  queue = []; cur = null; nextBeat = 0; nextTime = ctx.currentTime + .08;
+  playing = true; scheduler(); timer = setInterval(scheduler, 25);
+  $('play').textContent = '⏹ Parar'; $('play').setAttribute('aria-pressed', true);
+}
+function stop(){
+  playing = false; clearInterval(timer); queue = []; cur = null;
+  $('play').textContent = '▶ Vamos!'; $('play').setAttribute('aria-pressed', false);
+  segs.forEach(s => s.classList.remove('on'));
+  const p = pat.pts[0]; dot.setAttribute('transform', `translate(${p[0]} ${p[1]})`);
+}
+
+/* ---------- Animação sincronizada com o relógio do áudio ---------- */
+let lastOn = -1;
+function frame(){
+  if (playing){
+    const now = ctx.currentTime;
+    while (queue.length && queue[0].time <= now){
+      cur = queue.shift();
+      if (segs[cur.beat]){
+        if (lastOn >= 0 && segs[lastOn]) segs[lastOn].classList.remove('on');
+        segs[cur.beat].classList.add('on'); lastOn = cur.beat;
+        const pe = pointEls[cur.beat];
+        pe.classList.remove('hit'); void pe.getBoundingClientRect(); pe.classList.add('hit');
+      }
+    }
+    if (cur && segs[cur.beat]){
+      const path = segs[cur.beat];
+      const prog = Math.min(1, Math.max(0, (now - cur.time) / cur.dur));
+      const pt = path.getPointAtLength(prog * path.getTotalLength());
+      dot.setAttribute('transform', `translate(${pt.x} ${pt.y})`);
+    }
+  }
+  requestAnimationFrame(frame);
+}
+
+/* ---------- Andamento ---------- */
+function setBpm(v){
+  bpm = Math.max(30, Math.min(240, Math.round(v)));
+  $('bpm').textContent = bpm; $('slider').value = bpm;
+}
+$('slider').oninput = e => setBpm(+e.target.value);
+function hold(btn, delta){
+  let t1, t2;
+  const go = () => setBpm(bpm + delta);
+  const end = () => { clearTimeout(t1); clearInterval(t2); };
+  btn.addEventListener('pointerdown', e => { e.preventDefault(); go(); t1 = setTimeout(() => t2 = setInterval(go, 70), 400); });
+  ['pointerup','pointerleave','pointercancel'].forEach(ev => btn.addEventListener(ev, end));
+}
+hold($('minus'), -1); hold($('plus'), 1);
+
+let taps = [];
+$('tap').onclick = () => {
+  const t = performance.now();
+  if (taps.length && t - taps[taps.length-1] > 2000) taps = [];
+  taps.push(t); taps = taps.slice(-6);
+  if (taps.length >= 2) setBpm(60000 / ((taps[taps.length-1] - taps[0]) / (taps.length-1)));
+};
+$('play').onclick = () => playing ? stop() : start();
+document.addEventListener('keydown', e => {
+  if (e.target.tagName === 'INPUT' && e.key.startsWith('Arrow')) return;
+  if (e.code === 'Space'){ e.preventDefault(); playing ? stop() : start(); }
+  else if (e.key === 'ArrowRight') setBpm(bpm+1);
+  else if (e.key === 'ArrowLeft')  setBpm(bpm-1);
+  else if (e.key === 'ArrowUp')    { e.preventDefault(); setBpm(bpm+5); }
+  else if (e.key === 'ArrowDown')  { e.preventDefault(); setBpm(bpm-5); }
+});
+
+
+/* ---------- Gerador de compassos ---------- */
+let custom = [];
+function choose(p){
+  pat = p; queue = []; cur = null; nextBeat = 0;
+  if (ctx) nextTime = ctx.currentTime + .08;
+  build(); buildSigs();
+}
+function saveCustom(){
+  try { localStorage.setItem('maestro.custom', JSON.stringify(custom.map(c => ({sizes:c.sizes, id:c.id, name:c.name})))); } catch(e){}
+}
+/* sizes = tamanho de cada grupo, ex.: [1,1,1,1] (4/4), [3,3] (6/8), [3,2] (5/4) */
+function gen(sizes, id, name, isCustom){
+  const G = sizes.length, st = [];
+  for (let g=0; g<G; g++){
+    if (g === 0) st.push([G === 1 ? 40 : 50, 86]);
+    else if (g === G-1) st.push([50, 22]);
+    else {
+      const M = G-2, right = G === 3 ? true : (g % 2 === 0);
+      st.push([right ? 86 : 14, M === 1 ? 56 : 68 - (g-1) * (28/(M-1))]);
+    }
+  }
+  const pts = [], col = [], accent = [];
+  sizes.forEach((sz, g) => {
+    accent.push(pts.length);
+    const [x,y] = st[g];
+    let dir = x > 55 ? 1 : -1, step = 9;
+    if (sz > 1){
+      const space = d => d > 0 ? 92 - x : x - 8;
+      if (space(dir) < 9*(sz-1) && space(-dir) > space(dir)) dir = -dir;
+      step = Math.min(9, space(dir)/(sz-1));
+    }
+    for (let k=0; k<sz; k++){
+      pts.push([Math.round((x + dir*step*k)*10)/10, Math.round((y - 2.5*k)*10)/10]);
+      col.push(g % 4);
+    }
+  });
+  return {id, name, pts, col, accent, sizes, custom:!!isCustom};
+}
+try {
+  custom = JSON.parse(localStorage.getItem('maestro.custom') || '[]').map(c => gen(c.sizes, c.id, c.name, true));
+} catch(e){ custom = []; }
+
+$('cAdd').onclick = () => {
+  const msg = $('cMsg'); msg.textContent = '';
+  let sizes = [];
+  const txt = $('cT').value.trim();
+  if (txt){
+    sizes = txt.split(/[+,\s]+/).filter(Boolean).map(Number);
+    if (sizes.some(n => !Number.isInteger(n) || n < 1 || n > 8)){ msg.textContent = 'Use só números de 1 a 8, como 3+2 ✏️'; return; }
+  } else {
+    const n = +$('cN').value, k = +$('cG').value;
+    if (!Number.isInteger(n) || n < 2 || n > 16){ msg.textContent = 'Escolha de 2 a 16 pulsos ✏️'; return; }
+    for (let r = n; r > 0; r -= k) sizes.push(Math.min(k, r));
+  }
+  const total = sizes.reduce((a,b) => a+b, 0);
+  if (total < 2 || total > 16 || sizes.length > 12){ msg.textContent = 'O compasso precisa ter de 2 a 16 pulsos ✏️'; return; }
+  const simple = sizes.every(x => x === 1);
+  const id = $('cName').value.trim() || `${total}/${simple ? 4 : 8}`;
+  const name = simple ? `${total} tempos` : `grupos ${sizes.join('+')}`;
+  const p = gen(sizes, id, name, true);
+  custom.push(p); saveCustom(); choose(p);
+  $('creator').open = false; $('cName').value = ''; $('cT').value = '';
+};
+
+/* ---------- Instalar como aplicativo (PWA) ---------- */
+let deferredInstall = null;
+const isStandalone = () => matchMedia('(display-mode: standalone)').matches || navigator.standalone;
+window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferredInstall = e; if (!isStandalone()) $('install').hidden = false; });
+$('install').onclick = async () => {
+  if (!deferredInstall) return;
+  deferredInstall.prompt();
+  await deferredInstall.userChoice;
+  deferredInstall = null; $('install').hidden = true;
+};
+window.addEventListener('appinstalled', () => { $('install').hidden = true; $('iosHint').hidden = true; });
+if (/iphone|ipad|ipod/i.test(navigator.userAgent) && !isStandalone()) $('iosHint').hidden = false;
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
+
+
+/* ---------- Personagens ---------- */
+let charKind = 'carinha';
+try { const k = localStorage.getItem('maestro.char'); if (['carinha','coelho','menino','menina'].includes(k)) charKind = k; } catch(e){}
+function drawChar(g, kind){
+  const E = (n, a) => el(n, a, g), ink = '#3b2a1a', skin = '#ffd3a8', hair = '#6b3f1d';
+  const eyes = y => { E('circle',{cx:-1.7,cy:y,r:.8,fill:ink}); E('circle',{cx:1.7,cy:y,r:.8,fill:ink}); };
+  const smile = y => E('path',{d:`M-2.1,${y} Q0,${y+2.4} 2.1,${y}`,fill:'none',stroke:ink,'stroke-width':.7,'stroke-linecap':'round'});
+  const fringe = () => E('path',{d:'M-4.8,-.8 A4.8 4.8 0 0 1 4.8,-.8 Q2,-3.2 -1,-2.4 Q-3,-2.2 -4.8,-.8Z',fill:hair});
+  if (kind === 'coelho'){
+    [-2.4,2.4].forEach(x => {
+      E('ellipse',{cx:x,cy:-6.6,rx:1.5,ry:3.6,fill:'#fff',stroke:'#8a6fb0','stroke-width':.7});
+      E('ellipse',{cx:x,cy:-6.4,rx:.7,ry:2.4,fill:'#ffb3c7'});
+    });
+    E('circle',{r:4.8,fill:'#fff',stroke:'#8a6fb0','stroke-width':.8});
+    eyes(-.6);
+    E('ellipse',{cx:0,cy:.9,rx:.9,ry:.65,fill:'#ff7aa2'});
+    E('path',{d:'M0,1.5 L0,2.4 M0,2.4 Q-1.2,3.4 -2,2.6 M0,2.4 Q1.2,3.4 2,2.6',fill:'none',stroke:ink,'stroke-width':.5,'stroke-linecap':'round'});
+  } else if (kind === 'menino'){
+    E('circle',{r:4.8,fill:skin,stroke:'#c98a52','stroke-width':.8});
+    fringe(); eyes(.3); smile(1.9);
+    E('circle',{cx:-3.2,cy:1.8,r:.9,fill:'#ff9bb3',opacity:.6}); E('circle',{cx:3.2,cy:1.8,r:.9,fill:'#ff9bb3',opacity:.6});
+  } else if (kind === 'menina'){
+    [-5.6,5.6].forEach(x => E('circle',{cx:x,cy:1.4,r:2.2,fill:hair}));
+    E('circle',{r:4.8,fill:skin,stroke:'#c98a52','stroke-width':.8});
+    fringe(); eyes(.3); smile(1.9);
+    E('circle',{cx:-3.2,cy:1.8,r:.9,fill:'#ff9bb3',opacity:.6}); E('circle',{cx:3.2,cy:1.8,r:.9,fill:'#ff9bb3',opacity:.6});
+    [-4.4,4.4].forEach(x => E('circle',{cx:x,cy:-2,r:1.3,fill:'#ff4d8d',stroke:'#fff','stroke-width':.4}));
+  } else {
+    E('circle',{r:5,fill:'#ffd23f',stroke:'#ff8a00','stroke-width':1});
+    eyes(-1); smile(1.3);
+  }
+}
+const CHARS = [['carinha','🙂','Carinha'],['coelho','🐰','Coelho'],['menino','👦','Menino'],['menina','👧','Menina']];
+function buildChars(){
+  const box = $('chars'); box.innerHTML = '<span>Quem vai guiar?</span>';
+  CHARS.forEach(([k, em, nome]) => {
+    const b = document.createElement('button');
+    b.type = 'button'; b.textContent = em; b.title = nome; b.setAttribute('aria-label', nome);
+    b.setAttribute('aria-pressed', k === charKind);
+    b.onclick = () => {
+      charKind = k;
+      try { localStorage.setItem('maestro.char', k); } catch(e){}
+      dot.replaceChildren(); drawChar(dot, k); buildChars();
+    };
+    box.appendChild(b);
+  });
+}
+
+build(); buildSigs(); buildChars(); setBpm(80); requestAnimationFrame(frame);
+</script>
+</body>
+</html>
