@@ -85,6 +85,33 @@ details#creator summary{font-weight:800;font-size:1.1rem;cursor:pointer}
 .chars button:active{transform:translateY(3px);box-shadow:0 1px 0 var(--line)}
 .chars button[aria-pressed=true]{background:var(--sun)}
 .credit{color:var(--mute);font-size:.9rem;font-weight:700;text-align:center;padding:4px 0 8px}
+.tabs{display:flex;gap:8px;width:min(92vw,520px)}
+.tabs button{flex:1;padding:10px 6px;border-radius:18px;border:3px solid var(--line);background:var(--btn);color:var(--ink);font:inherit;font-weight:800;font-size:1.05rem;cursor:pointer;box-shadow:0 4px 0 var(--line)}
+.tabs button[aria-pressed=true]{background:var(--sun);color:var(--onsun)}
+.tabs button:active{transform:translateY(3px);box-shadow:0 1px 0 var(--line)}
+.chips,.grid{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.mini{padding:8px 12px;border-radius:14px;border:3px solid var(--line);background:var(--btn);color:var(--ink);font:inherit;font-weight:800;font-size:.95rem;cursor:pointer;box-shadow:0 3px 0 var(--line);touch-action:manipulation}
+.mini:active{transform:translateY(2px);box-shadow:0 1px 0 var(--line)}
+.mini[aria-pressed=true]{background:var(--sun);color:var(--onsun)}
+.mini.big{min-width:54px;font-size:1.05rem}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.opts label{display:flex;flex-direction:column;gap:3px;font-weight:700;font-size:.9rem}
+.opts select,#lib,textarea,#libName{font:inherit;padding:8px 10px;border-radius:12px;border:3px solid var(--line);background:var(--field);color:var(--ink)}
+textarea{width:100%;resize:vertical}
+#lib{flex:1;min-width:0}
+.checks{display:flex;flex-wrap:wrap;gap:14px;font-weight:700}
+.checks label{display:flex;align-items:center;gap:6px}
+.checks input{width:20px;height:20px;accent-color:var(--c2)}
+hr{border:0;border-top:3px dashed var(--line);width:100%;margin:4px 0;opacity:.4}
+.score{max-height:260px;overflow:auto;position:relative;display:flex;flex-wrap:wrap;gap:10px 14px;align-content:flex-start;padding:10px;border:3px solid var(--line);border-radius:18px;background:var(--soft)}
+.score>.hint{width:100%}
+.bar{display:flex;gap:4px;padding-right:10px;border-right:3px solid var(--line)}
+.nt{display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:44px;padding:5px 6px;border-radius:12px;background:var(--btn);border:2px solid transparent;font-weight:800;line-height:1.1;cursor:default;transition:transform .08s}
+.nt b{font-size:1.15rem}
+.nt small{font-size:.7rem;color:var(--mute);font-weight:700}
+.nt.rest{opacity:.65}
+.nt.now{background:var(--sun);color:var(--onsun);border-color:var(--line);transform:scale(1.12)}
+.nt.now small{color:var(--onsun)}
 .theme{display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-weight:800;font-size:1.05rem}
 .theme>span{flex:1 1 100%}
 .theme button,.theme label.pick{width:44px;height:44px;border-radius:50%;border:3px solid var(--line);background:var(--btn);font-size:1.4rem;line-height:1;cursor:pointer;box-shadow:0 4px 0 var(--line);touch-action:manipulation;padding:0;display:inline-flex;align-items:center;justify-content:center;overflow:hidden;position:relative}
@@ -98,7 +125,80 @@ details#creator summary{font-weight:800;font-size:1.1rem;cursor:pointer}
 </head>
 <body>
 <h1>🎵 <span class="r">Meu</span> <span class="b">Metrônomo</span> <span class="g">Maestro</span> 🎶<small>Siga a bolinha e aprenda a reger!</small></h1>
+<div class="tabs" id="tabs">
+  <button type="button" id="tabM" aria-pressed="true">🥁 Metrônomo</button>
+  <button type="button" id="tabS" aria-pressed="false">🎼 Solfejo</button>
+</div>
+
 <div id="stage"><svg id="svg" viewBox="0 0 100 100" role="img" aria-label="Movimento de regência do compasso"></svg></div>
+
+<div class="panel" id="scorePanel" hidden>
+  <div class="chips" id="voiceChips"></div>
+  <div class="opts">
+    <label>Mostrar
+      <select id="oShow"><option value="sol">Solfejo</option><option value="rit">Ritmo (TÁ)</option><option value="both">Os dois</option></select>
+    </label>
+    <label>Solfejo
+      <select id="oDo"><option value="fixo">Dó fixo</option><option value="movel">Dó móvel</option></select>
+    </label>
+    <label id="lTonic" hidden>Tom <select id="oTonic"></select></label>
+    <label>Som
+      <select id="oSound"><option value="one">Só esta voz</option><option value="all">Todas as vozes</option><option value="none">Sem notas</option></select>
+    </label>
+  </div>
+  <div class="checks">
+    <label><input type="checkbox" id="oClick" checked> Clique</label>
+    <label><input type="checkbox" id="oCount" checked> Contagem inicial</label>
+    <label><input type="checkbox" id="oLoop"> Repetir</label>
+  </div>
+  <div class="score" id="score"></div>
+
+  <details id="editor">
+    <summary>✏️ Escrever ou importar partitura</summary>
+    <div class="form">
+      <label>Nome desta voz <input type="text" id="vName" maxlength="14"></label>
+      <div class="grid">
+        <button type="button" class="mini" id="vAdd">➕ Nova voz</button>
+        <button type="button" class="mini" id="vDel">🗑 Apagar voz</button>
+      </div>
+      <strong>1. Escolha a duração</strong>
+      <div class="grid" id="durs"></div>
+      <strong>2. Toque na nota</strong>
+      <div class="grid" id="pitches"></div>
+      <div class="grid">
+        <button type="button" class="mini" id="aSharp" aria-pressed="false">♯</button>
+        <button type="button" class="mini" id="aFlat" aria-pressed="false">♭</button>
+        <button type="button" class="mini" id="octDn" aria-label="Oitava abaixo">−</button>
+        <span id="octLbl" style="font-weight:800"></span>
+        <button type="button" class="mini" id="octUp" aria-label="Oitava acima">+</button>
+      </div>
+      <div class="grid">
+        <button type="button" class="mini" id="rest">⏸ Pausa</button>
+        <button type="button" class="mini" id="undo">⌫ Apagar última</button>
+        <button type="button" class="mini" id="clr">Limpar voz</button>
+      </div>
+      <p class="hint">Dica: com o editor aberto, toque numa nota da partitura para apagá-la.</p>
+      <hr>
+      <strong>Importar por texto</strong>
+      <textarea id="tx" rows="5" placeholder="compasso: 4/4&#10;Soprano: C4/1 D4/1 E4/2 | R/1 G4/.5 A4/.5 B4/2&#10;Contralto: E4/1 F4/1 G4/2"></textarea>
+      <div class="grid">
+        <button type="button" class="mini" id="tImp">📥 Importar</button>
+        <button type="button" class="mini" id="tExp">📤 Mostrar texto atual</button>
+        <button type="button" class="mini" id="tAI">📋 Copiar pedido para a IA</button>
+      </div>
+      <p class="hint" id="sMsg">Tem foto ou PDF? Copie o pedido, mande para uma IA junto com a imagem e cole a resposta aqui.</p>
+      <hr>
+      <strong>Minhas partituras</strong>
+      <input type="text" id="libName" placeholder="Nome da partitura" maxlength="30">
+      <div class="grid"><button type="button" class="mini" id="lSave">💾 Salvar esta</button></div>
+      <div class="grid">
+        <select id="lib"></select>
+        <button type="button" class="mini" id="lOpen">Abrir</button>
+        <button type="button" class="mini" id="lDel" aria-label="Apagar partitura salva">🗑</button>
+      </div>
+    </div>
+  </details>
+</div>
 
 <div class="panel">
   <div class="sigs" id="sigs"></div>
@@ -248,7 +348,15 @@ function click(time, beat){
 function scheduler(){
   while (nextTime < ctx.currentTime + .12){
     const dur = 60 / bpm;
-    click(nextTime, nextBeat);
+    if (scoreOn){
+      if (gPulse >= endPulse){
+        if ($('oLoop').checked){ gPulse = 0; ptrs = evs.map(() => 0); }
+        else { finish(); return; }
+      }
+      scheduleNotes(nextTime, dur);
+      gPulse++;
+    }
+    if (view === 'metro' || $('oClick').checked) click(nextTime, nextBeat);
     queue.push({beat:nextBeat, time:nextTime, dur});
     nextTime += dur;
     nextBeat = (nextBeat + 1) % pat.pts.length;
@@ -258,11 +366,14 @@ function start(){
   if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
   ctx.resume();
   queue = []; cur = null; nextBeat = 0; nextTime = ctx.currentTime + .08;
+  clearTimeout(finishTO); noteQueue = []; setNow(-1);
+  prepScore(); scoreOn = view === 'solfa' && endPulse > 0;
+  gPulse = (scoreOn && $('oCount').checked) ? -pat.pts.length : 0;
   playing = true; scheduler(); timer = setInterval(scheduler, 25);
   $('play').textContent = '⏹ Parar'; $('play').setAttribute('aria-pressed', true);
 }
 function stop(){
-  playing = false; clearInterval(timer); queue = []; cur = null;
+  playing = false; clearInterval(timer); clearTimeout(finishTO); queue = []; cur = null; noteQueue = []; setNow(-1);
   $('play').textContent = '▶ Vamos!'; $('play').setAttribute('aria-pressed', false);
   segs.forEach(s => s.classList.remove('on'));
   const p = pat.pts[0]; dot.setAttribute('transform', `translate(${p[0]} ${p[1]})`);
@@ -273,6 +384,7 @@ let lastOn = -1;
 function frame(){
   if (playing){
     const now = ctx.currentTime;
+    while (noteQueue.length && noteQueue[0].time <= now) setNow(noteQueue.shift().i);
     while (queue.length && queue[0].time <= now){
       cur = queue.shift();
       if (segs[cur.beat]){
@@ -316,7 +428,9 @@ $('tap').onclick = () => {
 };
 $('play').onclick = () => playing ? stop() : start();
 document.addEventListener('keydown', e => {
-  if (e.target.tagName === 'INPUT' && e.key.startsWith('Arrow')) return;
+  const tg = e.target.tagName;
+  if (tg === 'TEXTAREA' || tg === 'SELECT' || (tg === 'INPUT' && e.target.type !== 'range')) return;
+  if (tg === 'INPUT' && e.key.startsWith('Arrow')) return;
   if (e.code === 'Space'){ e.preventDefault(); playing ? stop() : start(); }
   else if (e.key === 'ArrowRight') setBpm(bpm+1);
   else if (e.key === 'ArrowLeft')  setBpm(bpm-1);
@@ -328,9 +442,11 @@ document.addEventListener('keydown', e => {
 /* ---------- Gerador de compassos ---------- */
 let custom = [];
 function choose(p){
+  if (playing && view === 'solfa') stop();
   pat = p; queue = []; cur = null; nextBeat = 0;
   if (ctx) nextTime = ctx.currentTime + .08;
   build(); buildSigs();
+  if (view === 'solfa') renderScore();
 }
 function saveCustom(){
   try { localStorage.setItem('maestro.custom', JSON.stringify(custom.map(c => ({sizes:c.sizes, id:c.id, name:c.name})))); } catch(e){}
