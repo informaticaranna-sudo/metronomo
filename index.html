@@ -15,12 +15,21 @@
 :root{
   --bg:#fff4d6; --panel:#ffffff; --ink:#3b2a5a; --mute:#8a6fb0; --line:#3b2a5a;
   --c0:#4a4a68; --c1:#2f6bff; --c2:#19b86a; --c3:#ff4d6d; --prep:#1fb6ff; --sun:#ffd23f;
+  --btn:#f4f0ff; --soft:#fffbea; --field:#ffffff; --onsun:#3b2a5a;
+  --b1:#ffe08a; --b2:#bfe8ff; --b3:#ffc9d9; --b4:#c9f5d9;
 }
+:root[data-theme=dark]{
+  --bg:#1c1530; --panel:#2a2145; --ink:#f3ecff; --mute:#b9a5e0; --line:#0d0919;
+  --c0:#9aa0c9; --c1:#6c97ff; --c2:#2fd68a; --c3:#ff6b89; --prep:#4cc9ff;
+  --btn:#3a2f5e; --soft:#33294f; --field:#1c1530; --onsun:#3b2a5a;
+  --b1:#2b2250; --b2:#1f2a52; --b3:#3a2147; --b4:#1d3a3f;
+}
+:root[data-bgmode=custom] body{background-image:none}
 *{box-sizing:border-box}
 html,body{margin:0;min-height:100%}
 body{background:var(--bg);color:var(--ink);font-family:"Baloo 2","Fredoka","Chalkboard SE","Comic Sans MS","Trebuchet MS",system-ui,sans-serif;
   display:flex;flex-direction:column;align-items:center;padding:16px;gap:16px;position:relative;overflow-x:hidden;
-  background-image:radial-gradient(circle at 12% 18%,#ffe08a 0 60px,transparent 61px),radial-gradient(circle at 92% 8%,#bfe8ff 0 80px,transparent 81px),radial-gradient(circle at 95% 95%,#ffc9d9 0 90px,transparent 91px),radial-gradient(circle at 5% 90%,#c9f5d9 0 70px,transparent 71px);
+  background-image:radial-gradient(circle at 12% 18%,var(--b1) 0 60px,transparent 61px),radial-gradient(circle at 92% 8%,var(--b2) 0 80px,transparent 81px),radial-gradient(circle at 95% 95%,var(--b3) 0 90px,transparent 91px),radial-gradient(circle at 5% 90%,var(--b4) 0 70px,transparent 71px);
   background-attachment:fixed}
 h1{font-size:1.9rem;margin:2px 0 0;font-weight:800;text-align:center;line-height:1.1}
 h1 .r{color:var(--c3)} h1 .b{color:var(--c1)} h1 .g{color:var(--c2)}
@@ -37,11 +46,11 @@ svg{width:100%;height:100%;display:block}
 .preptxt{font-size:4px;font-weight:700;fill:var(--prep)}
 .panel{width:min(92vw,520px);background:var(--panel);border:4px solid var(--line);border-radius:28px;box-shadow:0 7px 0 var(--line);padding:16px;display:flex;flex-direction:column;gap:16px}
 .sigs{display:flex;flex-wrap:wrap;gap:8px}
-.sigs button{flex:1 1 30%;padding:8px 6px;border-radius:16px;border:3px solid var(--line);background:#f4f0ff;color:var(--ink);cursor:pointer;font:inherit;font-weight:800;font-size:1.15rem;line-height:1.15;box-shadow:0 4px 0 var(--line);transition:transform .1s}
+.sigs button{flex:1 1 30%;padding:8px 6px;border-radius:16px;border:3px solid var(--line);background:var(--btn);color:var(--ink);cursor:pointer;font:inherit;font-weight:800;font-size:1.15rem;line-height:1.15;box-shadow:0 4px 0 var(--line);transition:transform .1s}
 .sigs button small{display:block;color:var(--mute);font-size:.72rem;font-weight:600}
 .sigs button:active{transform:translateY(3px);box-shadow:0 1px 0 var(--line)}
-.sigs button[aria-pressed=true]{background:var(--sun);}
-.sigs button[aria-pressed=true] small{color:var(--ink)}
+.sigs button[aria-pressed=true]{background:var(--sun);color:var(--onsun)}
+.sigs button[aria-pressed=true] small{color:var(--onsun)}
 .tempo{display:flex;align-items:center;gap:10px}
 .step{width:58px;height:58px;border-radius:50%;border:3px solid var(--line);background:var(--c2);color:#fff;font:inherit;font-size:2rem;font-weight:800;line-height:1;cursor:pointer;touch-action:manipulation;box-shadow:0 5px 0 var(--line)}
 #minus{background:var(--c3)}
@@ -53,7 +62,7 @@ input[type=range]{width:100%;height:30px;accent-color:var(--c3);margin:6px 0 0}
 .row{display:flex;gap:10px}
 #play{flex:2;padding:14px;border-radius:20px;border:3px solid var(--line);background:var(--c2);color:#fff;font:inherit;font-weight:800;font-size:1.5rem;cursor:pointer;box-shadow:0 6px 0 var(--line)}
 #play[aria-pressed=true]{background:var(--c3)}
-#tap{flex:1;padding:14px;border-radius:20px;border:3px solid var(--line);background:var(--sun);color:var(--ink);font:inherit;font-weight:800;font-size:1.1rem;cursor:pointer;box-shadow:0 6px 0 var(--line)}
+#tap{flex:1;padding:14px;border-radius:20px;border:3px solid var(--line);background:var(--sun);color:var(--onsun);font:inherit;font-weight:800;font-size:1.1rem;cursor:pointer;box-shadow:0 6px 0 var(--line)}
 #play:active,#tap:active{transform:translateY(5px);box-shadow:0 1px 0 var(--line)}
 button:focus-visible,input:focus-visible{outline:4px solid var(--prep);outline-offset:3px}
 .hint{color:var(--mute);font-size:.8rem;text-align:center;margin:0}
@@ -63,25 +72,32 @@ button:focus-visible,input:focus-visible{outline:4px solid var(--prep);outline-o
 #install:active{transform:translateY(4px);box-shadow:0 1px 0 var(--line)}
 .sigs button{position:relative}
 .del{position:absolute;top:-9px;right:-6px;width:24px;height:24px;border-radius:50%;background:var(--c3);color:#fff;font-size:.7rem;line-height:19px;border:2px solid var(--line);text-align:center}
-details#creator{border:3px dashed var(--line);border-radius:18px;padding:8px 12px;background:#fffbea}
+details#creator{border:3px dashed var(--line);border-radius:18px;padding:8px 12px;background:var(--soft)}
 details#creator summary{font-weight:800;font-size:1.1rem;cursor:pointer}
 .form{display:flex;flex-direction:column;gap:10px;margin-top:10px}
 .form label{display:flex;flex-direction:column;gap:3px;font-weight:700;font-size:.9rem}
-.form input,.form select{font:inherit;padding:8px 10px;border-radius:12px;border:3px solid var(--line);background:#fff;color:var(--ink)}
+.form input,.form select{font:inherit;padding:8px 10px;border-radius:12px;border:3px solid var(--line);background:var(--field);color:var(--ink)}
 #cAdd{padding:11px;border-radius:16px;border:3px solid var(--line);background:var(--c2);color:#fff;font:inherit;font-weight:800;font-size:1.1rem;cursor:pointer;box-shadow:0 5px 0 var(--line)}
 #cAdd:active{transform:translateY(4px);box-shadow:0 1px 0 var(--line)}
-.chars{display:flex;align-items:center;gap:8px;font-weight:800;font-size:1.05rem}
-.chars span{flex:1}
-.chars button{width:54px;height:54px;border-radius:18px;border:3px solid var(--line);background:#f4f0ff;font-size:1.8rem;line-height:1;cursor:pointer;box-shadow:0 4px 0 var(--line);touch-action:manipulation}
+.chars{display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-weight:800;font-size:1.05rem}
+.chars span{flex:1 1 100%}
+.chars button{width:54px;height:54px;border-radius:18px;border:3px solid var(--line);background:var(--btn);font-size:1.8rem;line-height:1;cursor:pointer;box-shadow:0 4px 0 var(--line);touch-action:manipulation}
 .chars button:active{transform:translateY(3px);box-shadow:0 1px 0 var(--line)}
 .chars button[aria-pressed=true]{background:var(--sun)}
+.credit{color:var(--mute);font-size:.9rem;font-weight:700;text-align:center;padding:4px 0 8px}
+.theme{display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-weight:800;font-size:1.05rem}
+.theme>span{flex:1 1 100%}
+.theme button,.theme label.pick{width:44px;height:44px;border-radius:50%;border:3px solid var(--line);background:var(--btn);font-size:1.4rem;line-height:1;cursor:pointer;box-shadow:0 4px 0 var(--line);touch-action:manipulation;padding:0;display:inline-flex;align-items:center;justify-content:center;overflow:hidden;position:relative}
+.theme button:active{transform:translateY(3px);box-shadow:0 1px 0 var(--line)}
+.theme button[aria-pressed=true]{background:var(--sun);color:var(--onsun)}
+.theme .sw[aria-pressed=true]{outline:4px solid var(--prep);outline-offset:2px}
+.theme .modes{display:flex;gap:8px;margin-right:6px}
+.theme label.pick input{position:absolute;inset:-10px;width:70px;height:70px;opacity:0;cursor:pointer}
+.theme .reset{width:auto;border-radius:16px;padding:0 12px;font:inherit;font-size:.95rem;font-weight:800;color:var(--ink)}
 </style>
 </head>
 <body>
 <h1>🎵 <span class="r">Meu</span> <span class="b">Metrônomo</span> <span class="g">Maestro</span> 🎶<small>Siga a bolinha e aprenda a reger!</small></h1>
-<button id="install" hidden>📲 Instalar app</button>
-<p class="hint" id="iosHint" hidden>📲 No iPhone: toque em Compartilhar e depois em “Adicionar à Tela de Início”.</p>
-
 <div id="stage"><svg id="svg" viewBox="0 0 100 100" role="img" aria-label="Movimento de regência do compasso"></svg></div>
 
 <div class="panel">
@@ -108,6 +124,17 @@ details#creator summary{font-weight:800;font-size:1.1rem;cursor:pointer}
 
   <div class="chars" id="chars"></div>
 
+  <div class="theme" id="theme">
+    <span>Tema e cor do fundo 🎨</span>
+    <div class="modes">
+      <button type="button" id="mLight" aria-label="Tema claro" title="Claro">☀️</button>
+      <button type="button" id="mDark" aria-label="Tema escuro" title="Escuro">🌙</button>
+    </div>
+    <div id="swatches" style="display:contents"></div>
+    <label class="pick" title="Escolher outra cor" aria-label="Escolher outra cor">🌈<input type="color" id="bgPick" value="#fff4d6"></label>
+    <button type="button" class="reset" id="bgReset">Padrão</button>
+  </div>
+
   <div>
     <div class="tempo">
       <button class="step" id="minus" aria-label="Diminuir andamento">−</button>
@@ -123,6 +150,11 @@ details#creator summary{font-weight:800;font-size:1.1rem;cursor:pointer}
   </div>
   <p class="hint">Dica: aperte Espaço para começar e parar ✨</p>
 </div>
+
+<button id="install" hidden>📲 Instalar app</button>
+<p class="hint" id="iosHint" hidden></p>
+
+<footer class="credit">By Ranna Azevedo</footer>
 
 <script>
 /* Pontos (x,y) em grade 0–100, baseados nos diagramas. Cores: índice da cor de cada pulso. */
@@ -360,27 +392,38 @@ $('cAdd').onclick = () => {
 /* ---------- Instalar como aplicativo (PWA) ---------- */
 let deferredInstall = null;
 const isStandalone = () => matchMedia('(display-mode: standalone)').matches || navigator.standalone;
-window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferredInstall = e; if (!isStandalone()) $('install').hidden = false; });
+const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+if (!isStandalone()) $('install').hidden = false;
+window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferredInstall = e; });
 $('install').onclick = async () => {
-  if (!deferredInstall) return;
-  deferredInstall.prompt();
-  await deferredInstall.userChoice;
-  deferredInstall = null; $('install').hidden = true;
+  const hint = $('iosHint');
+  if (deferredInstall){
+    deferredInstall.prompt();
+    await deferredInstall.userChoice;
+    deferredInstall = null;
+    return;
+  }
+  hint.textContent = isIOS
+    ? '📲 No iPhone: toque em Compartilhar e depois em “Adicionar à Tela de Início”.'
+    : '📲 Abra o menu do navegador (⋮) e toque em “Instalar app” ou “Adicionar à tela inicial”.';
+  hint.hidden = false;
 };
 window.addEventListener('appinstalled', () => { $('install').hidden = true; $('iosHint').hidden = true; });
-if (/iphone|ipad|ipod/i.test(navigator.userAgent) && !isStandalone()) $('iosHint').hidden = false;
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
 
 
 /* ---------- Personagens ---------- */
 let charKind = 'carinha';
-try { const k = localStorage.getItem('maestro.char'); if (['carinha','coelho','menino','menina'].includes(k)) charKind = k; } catch(e){}
+try { const k = localStorage.getItem('maestro.char'); if (['bolinha','carinha','coelho','menino','menina'].includes(k)) charKind = k; } catch(e){}
 function drawChar(g, kind){
   const E = (n, a) => el(n, a, g), ink = '#3b2a1a', skin = '#ffd3a8', hair = '#6b3f1d';
   const eyes = y => { E('circle',{cx:-1.7,cy:y,r:.8,fill:ink}); E('circle',{cx:1.7,cy:y,r:.8,fill:ink}); };
   const smile = y => E('path',{d:`M-2.1,${y} Q0,${y+2.4} 2.1,${y}`,fill:'none',stroke:ink,'stroke-width':.7,'stroke-linecap':'round'});
   const fringe = () => E('path',{d:'M-4.8,-.8 A4.8 4.8 0 0 1 4.8,-.8 Q2,-3.2 -1,-2.4 Q-3,-2.2 -4.8,-.8Z',fill:hair});
-  if (kind === 'coelho'){
+  if (kind === 'bolinha'){
+    E('circle',{r:4.4,fill:'#3b2a5a',stroke:'#fff','stroke-width':.8});
+    E('circle',{cx:-1.5,cy:-1.5,r:1.2,fill:'#fff',opacity:.45});
+  } else if (kind === 'coelho'){
     [-2.4,2.4].forEach(x => {
       E('ellipse',{cx:x,cy:-6.6,rx:1.5,ry:3.6,fill:'#fff',stroke:'#8a6fb0','stroke-width':.7});
       E('ellipse',{cx:x,cy:-6.4,rx:.7,ry:2.4,fill:'#ffb3c7'});
@@ -404,7 +447,7 @@ function drawChar(g, kind){
     eyes(-1); smile(1.3);
   }
 }
-const CHARS = [['carinha','🙂','Carinha'],['coelho','🐰','Coelho'],['menino','👦','Menino'],['menina','👧','Menina']];
+const CHARS = [['bolinha','🟣','Bolinha'],['carinha','🙂','Carinha'],['coelho','🐰','Coelho'],['menino','👦','Menino'],['menina','👧','Menina']];
 function buildChars(){
   const box = $('chars'); box.innerHTML = '<span>Quem vai guiar?</span>';
   CHARS.forEach(([k, em, nome]) => {
@@ -419,6 +462,45 @@ function buildChars(){
     box.appendChild(b);
   });
 }
+
+/* ---------- Tema (claro/escuro) e cor do fundo ---------- */
+const root = document.documentElement;
+const SWATCHES = [['#fff4d6','Amarelo'],['#d8ecff','Azul'],['#ffd9e6','Rosa'],['#d6f5e1','Verde'],['#e6dcff','Lilás']];
+const DARK_SW = [['#1c1530','Roxo'],['#0f1b2e','Azul'],['#2a1220','Vinho'],['#10241c','Verde'],['#111111','Preto']];
+let mode = 'light', bgCustom = null;
+try {
+  const m = localStorage.getItem('maestro.theme'); if (m === 'dark' || m === 'light') mode = m;
+  const b = localStorage.getItem('maestro.bg'); if (/^#[0-9a-f]{6}$/i.test(b || '')) bgCustom = b;
+} catch(e){}
+function applyTheme(){
+  root.dataset.theme = mode;
+  if (bgCustom){ root.dataset.bgmode = 'custom'; root.style.setProperty('--bg', bgCustom); $('bgPick').value = bgCustom; }
+  else { delete root.dataset.bgmode; root.style.removeProperty('--bg'); }
+  const m = document.querySelector('meta[name=theme-color]');
+  if (m) m.content = bgCustom || (mode === 'dark' ? '#1c1530' : '#ffd23f');
+  $('mLight').setAttribute('aria-pressed', mode === 'light');
+  $('mDark').setAttribute('aria-pressed', mode === 'dark');
+  const box = $('swatches'); box.innerHTML = '';
+  (mode === 'dark' ? DARK_SW : SWATCHES).forEach(([c, nome]) => {
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'sw'; b.title = nome; b.setAttribute('aria-label', 'Fundo ' + nome);
+    b.style.background = c; b.setAttribute('aria-pressed', bgCustom === c);
+    b.onclick = () => setBg(c);
+    box.appendChild(b);
+  });
+}
+function saveTheme(){
+  try {
+    localStorage.setItem('maestro.theme', mode);
+    bgCustom ? localStorage.setItem('maestro.bg', bgCustom) : localStorage.removeItem('maestro.bg');
+  } catch(e){}
+}
+function setBg(c){ bgCustom = c; saveTheme(); applyTheme(); }
+$('mLight').onclick = () => { mode = 'light'; bgCustom = null; saveTheme(); applyTheme(); };
+$('mDark').onclick  = () => { mode = 'dark';  bgCustom = null; saveTheme(); applyTheme(); };
+$('bgPick').oninput = e => setBg(e.target.value);
+$('bgReset').onclick = () => { bgCustom = null; saveTheme(); applyTheme(); };
+applyTheme();
 
 build(); buildSigs(); buildChars(); setBpm(80); requestAnimationFrame(frame);
 </script>
