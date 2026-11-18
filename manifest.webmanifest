@@ -1,6 +1,6 @@
 {
-  "name": "Meu Metrônomo Maestro",
-  "short_name": "Maestro",
+  "name": "Metrônomo Infantil",
+  "short_name": "Metrônomo",
   "description": "Metrônomo de regência para aprender os movimentos dos compassos.",
   "lang": "pt-BR",
   "start_url": "./",
