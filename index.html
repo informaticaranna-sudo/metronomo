@@ -88,6 +88,7 @@ details#creator summary{font-weight:800;font-size:1.1rem;cursor:pointer}
 .tabs{display:flex;gap:8px;width:min(92vw,520px)}
 .tabs button{flex:1;padding:10px 6px;border-radius:18px;border:3px solid var(--line);background:var(--btn);color:var(--ink);font:inherit;font-weight:800;font-size:1.05rem;cursor:pointer;box-shadow:0 4px 0 var(--line)}
 .tabs button[aria-pressed=true]{background:var(--sun);color:var(--onsun)}
+.tabs button{line-height:1.15}
 .tabs button:active{transform:translateY(3px);box-shadow:0 1px 0 var(--line)}
 .chips,.grid{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
 .mini{padding:8px 12px;border-radius:14px;border:3px solid var(--line);background:var(--btn);color:var(--ink);font:inherit;font-weight:800;font-size:.95rem;cursor:pointer;box-shadow:0 3px 0 var(--line);touch-action:manipulation}
@@ -144,7 +145,7 @@ details#editor summary{font-weight:800;font-size:1.1rem;cursor:pointer}
 <h1>🎵 <span class="r">Meu</span> <span class="b">Metrônomo</span> <span class="g">Maestro</span> 🎶<small>Siga a bolinha e aprenda a reger!</small></h1>
 <div class="tabs" id="tabs">
   <button type="button" id="tabM" aria-pressed="true">🥁 Metrônomo</button>
-  <button type="button" id="tabS" aria-pressed="false">🎼 Solfejo</button>
+  <button type="button" id="tabS" aria-pressed="false">🎼 Linguagem rítmica</button>
 </div>
 
 <div id="stage"><svg id="svg" viewBox="0 0 100 100" role="img" aria-label="Movimento de regência do compasso"></svg></div>
@@ -153,6 +154,8 @@ details#editor summary{font-weight:800;font-size:1.1rem;cursor:pointer}
   <strong style="font-size:1.15rem">Escolha as figuras do ritmo 🎵</strong>
   <div class="cards" id="cards"></div>
   <p class="hint" id="cardHint"></p>
+  <label class="chk" id="lSub"><input type="checkbox" id="oSub" checked> 🥁 Metrônomo divide o tempo (colcheias, tercinas)</label>
+  <label class="chk" id="lSus"><input type="checkbox" id="oSus" checked> 🎤 Segurar a vogal (Táááá dura o tempo todo)</label>
   <label class="chk" id="lSpeak"><input type="checkbox" id="oSpeak" checked> 🔊 Falar as sílabas (Tá, ti)</label>
 </div>
 
@@ -303,11 +306,96 @@ function click(time, beat){
   o.connect(g).connect(ctx.destination);
   o.start(time); o.stop(time + .07);
 }
+/* clique suave das subdivisões (a "divisão" do tempo, como num metrônomo de verdade) */
+function subClick(time){
+  const o = ctx.createOscillator(), g = ctx.createGain();
+  o.frequency.value = 480;
+  g.gain.setValueAtTime(0, time);
+  g.gain.linearRampToValueAtTime(.28, time + .002);
+  g.gain.exponentialRampToValueAtTime(.001, time + .04);
+  o.connect(g).connect(ctx.destination);
+  o.start(time); o.stop(time + .05);
+}
+/* em quantas partes a figura divide o pulso que começa em "pos" (em semínimas): 1, 2 (colcheias), 3 (tercina) ou 4 */
+function beatSub(n, card, pos){
+  let s = 0, h2 = false, h3 = false, h4 = false;
+  const chk = t => {
+    const f = t - pos;
+    if (f < -1e-6 || f >= 1 - 1e-6) return;
+    const near = x => Math.abs(f - x) < 1e-4;
+    if (near(1/3) || near(2/3)) h3 = true;
+    else if (near(.5)) h2 = true;
+    else if (near(.25) || near(.75)) h4 = true;
+  };
+  SETS[n][card].forEach(d => { const a = Math.abs(d); chk(s); chk(s + a); s += a; });
+  return h3 ? 3 : h4 ? 4 : h2 ? 2 : 1;
+}
+/* voz cantada: a vogal dura exatamente o valor da nota (Tá = 1 tempo, Táá = 2 tempos...) */
+let noiseBuf = null;
+const FORM = {
+  a: [[800, 1, 9], [1200, .6, 12], [2800, .25, 15]],
+  i: [[300, 1, 8], [2300, .5, 15], [3000, .3, 15]],
+  o: [[500, 1, 8], [900, .6, 10], [2600, .2, 15]]
+};
+function voice(time, durSec, vowel, burst){
+  const end = time + Math.max(.08, durSec);
+  const out = ctx.createGain();
+  out.gain.setValueAtTime(0, time);
+  out.gain.linearRampToValueAtTime(.5, time + .025);
+  out.gain.setValueAtTime(.5, Math.max(time + .03, end - .06));
+  out.gain.linearRampToValueAtTime(0, end);
+  out.connect(ctx.destination);
+  const src = ctx.createOscillator();
+  src.type = 'sawtooth'; src.frequency.value = 185;
+  FORM[vowel].forEach(([f, g, q]) => {
+    const b = ctx.createBiquadFilter(), gg = ctx.createGain();
+    b.type = 'bandpass'; b.frequency.value = f; b.Q.value = q; gg.gain.value = g * 4;
+    src.connect(b); b.connect(gg); gg.connect(out);
+  });
+  src.start(time); src.stop(end + .02);
+  if (burst){                                          // o "t" do Tá
+    if (!noiseBuf){
+      noiseBuf = ctx.createBuffer(1, Math.floor(ctx.sampleRate * .03), ctx.sampleRate);
+      const d = noiseBuf.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+    }
+    const ns = ctx.createBufferSource(), hp = ctx.createBiquadFilter(), ng = ctx.createGain();
+    ns.buffer = noiseBuf; hp.type = 'highpass'; hp.frequency.value = 2500;
+    ng.gain.setValueAtTime(.35, time); ng.gain.exponentialRampToValueAtTime(.001, time + .025);
+    ns.connect(hp).connect(ng).connect(ctx.destination); ns.start(time);
+  }
+}
+/* agenda as sílabas de um pulso do compasso, no relógio do áudio (precisão total) */
+function voiceBeat(n, card, pos, t0, dur){
+  let s = 0;
+  SETS[n][card].forEach(d => {
+    const a = Math.abs(d), st = s; s += a;
+    if (d < 0 || st < pos - 1e-6 || st >= pos + 1 - 1e-6) return;
+    const t = t0 + (st - pos) * dur, len = a * dur * .94;
+    if (Math.abs(a - T) < 1e-6){
+      const k = Math.round((st % 1) * 3) % 3;
+      voice(t, len, ['i', 'o', 'a'][k], k === 0);
+    } else voice(t, len, a * pulseQ(pat) < 1 ? 'i' : 'a', true);
+  });
+}
 function scheduler(){
   while (nextTime < ctx.currentTime + .12){
     const dur = 60 / bpm;
-    if (scoreOn){ noteQueue.push({time: nextTime, p: tickN}); tickN++; }
+    let sub = 1;
+    if (scoreOn){
+      const nP = pat.pts.length, bar = Math.floor(tickN / nP);
+      const n = cardN(), list = n ? picks(n) : [];
+      const card = bar >= 0 && list.length ? list[bar % list.length] : -1;
+      if (card >= 0 && subOn) sub = beatSub(n, card, tickN - bar * nP);
+      noteQueue.push({time: nextTime, p: tickN, card});
+      if (speakOn && susOn){
+        const {bp} = beatsInfo();
+        if (card < 0){ if ((((tickN % bp) + bp) % bp) === 0) voice(nextTime, bp * dur * .94, 'a', true); }
+        else voiceBeat(n, card, tickN - bar * nP, nextTime, dur);
+      }
+      tickN++;
+    }
     click(nextTime, nextBeat);
+    for (let k = 1; k < sub; k++) subClick(nextTime + dur * k / sub);
     queue.push({beat:nextBeat, time:nextTime, dur});
     nextTime += dur;
     nextBeat = (nextBeat + 1) % pat.pts.length;
@@ -582,19 +670,40 @@ applyTheme();
 /* ---------- Solfejo: linguagem rítmica com figuras ---------- */
 let view = 'metro', initBpm = 80;
 let scoreOn = false, tickN = 0, noteQueue = [], finishTO = null, cardEls = [], nowCard = -1;
-let pickedBy = {2: [], 3: [], 4: []}, speakOn = true;
+let pickedBy = {2: [], 3: [], 4: []}, speakOn = true, subOn = true, susOn = true;
 
 /* cada figura é uma lista de durações em semínimas (número negativo = pausa) */
+const T = 1 / 3;   // tercina: 3 notas no tempo de 1 semínima
 const SETS = {
-  2: [[2],[1,1],[1,.5,.5],[.5,.5,1],[.5,.5,.5,.5],[1,-1],[-1,1],[1.5,.5],[-1,.5,.5]],
-  3: [[3],[1.5,.5,1],[1,1,1],[1,2],[1,-1,1],[2,.5,.5],[.5,.5,.5,.5,1],[1,.5,.5,1],[1,.5,.5,.5,.5]],
-  4: [[4],[2,2],[1,1,1,1],[2,1,1],[1,1,2],[1,.5,.5,2],[.5,.5,.5,.5,1,1],[1.5,.5,1,1],[1,-1,1,1]]
+  2: [[2],[1,1],[1,.5,.5],[.5,.5,1],[.5,.5,.5,.5],[1,-1],[-1,1],[1.5,.5],[-1,.5,.5],[T,T,T,1]],
+  3: [[3],[1.5,.5,1],[1,1,1],[1,2],[1,-1,1],[2,.5,.5],[.5,.5,.5,.5,1],[1,.5,.5,1],[1,.5,.5,.5,.5],[1,T,T,T,1]],
+  4: [[4],[2,2],[1,1,1,1],[2,1,1],[1,1,2],[1,.5,.5,2],[.5,.5,.5,.5,1,1],[1.5,.5,1,1],[1,-1,1,1],[1,1,T,T,T,1]],
+  c6:  [[3,3],[6],[1,1,1,3],[3,1,1,1],[2,1,2,1],[1,2,1,2],[2,1,3],[3,-3],[1,1,1,-3],[1,1,1,1,1,1]],
+  c9:  [[3,3,3],[6,3],[3,6],[1,1,1,3,3],[3,1,1,1,3],[3,3,1,1,1],[2,1,2,1,3],[3,-3,3],[2,1,3,3]],
+  c12: [[3,3,3,3],[6,6],[6,3,3],[3,3,6],[1,1,1,3,3,3],[3,1,1,1,3,3],[3,3,1,1,1,3],[2,1,2,1,3,3],[3,-3,3,3],[6,-3,3]]
 };
 try {
   const p = JSON.parse(localStorage.getItem('maestro.cards') || '{}');
-  [2, 3, 4].forEach(n => { if (Array.isArray(p[n])) pickedBy[n] = p[n].filter(i => Number.isInteger(i) && i >= 0 && i < SETS[n].length); });
+  Object.keys(p).forEach(k => { if (Array.isArray(p[k])) pickedBy[k] = p[k].filter(i => Number.isInteger(i) && i >= 0 && i < 40); });
   if (localStorage.getItem('maestro.speak') === '0') speakOn = false;
+  if (localStorage.getItem('maestro.sub') === '0') subOn = false;
+  if (localStorage.getItem('maestro.sus') === '0') susOn = false;
 } catch(e){}
+function picks(n){ return pickedBy[n] || (pickedBy[n] = []); }
+/* figuras geradas automaticamente para compassos criados (5/4, 7/8, 2+2+3...) */
+function autoSets(p){
+  const q = pulseQ(p), ok = q === 1 ? [1,2,3,4] : [1,2,3,4,6];      // durações (em pulsos) que têm figura
+  const sizes = p.sizes || p.pts.map(() => 1);
+  const split = g => { const o = []; while (g > 0){ const d = ok.filter(v => v <= g).pop(); o.push(d); g -= d; } return o; };
+  const whole = sizes.map(split), single = sizes.map(g => Array(g).fill(1));
+  const out = [], add = f => { const a = f.flat(); if (out.length < 10 && !out.some(o => o.join() === a.join())) out.push(a); };
+  add(whole); add(single);
+  sizes.forEach((g, k) => { if (g > 1 && k < 4) add(whole.map((w, j) => j === k ? single[j] : w)); });
+  if (q === 1) sizes.forEach((g, k) => { if (g === 1 && k < 3) add(whole.map((w, j) => j === k ? [.5, .5] : w)); });
+  if (sizes.every(g => g === 1) && sizes.length > 2) [0, sizes.length - 2].forEach(k => { const a = Array(sizes.length).fill(1); a.splice(k, 2, 2); add([a]); });
+  if (sizes.length > 1) add(whole.map((w, j) => j === 0 ? w.map(d => -d) : w));
+  return out;
+}
 function savePicked(){ try { localStorage.setItem('maestro.cards', JSON.stringify(pickedBy)); } catch(e){} }
 
 /* quanto vale um pulso do metrônomo, em semínimas (4/4 → 1, 6/8 → 0,5, 2/2 → 2) */
@@ -613,11 +722,25 @@ function beatsInfo(){
 function cardN(){
   const {n, comp} = beatsInfo();
   const simple = !comp && pulseQ(pat) === 1 && (!pat.sizes || pat.sizes.every(x => x === 1));
-  return simple && SETS[n] ? n : 0;
+  let key = 0;
+  if (simple && SETS[n]) key = n;
+  else if (comp && SETS['c' + pat.pts.length]) key = 'c' + pat.pts.length;
+  else {
+    key = 'u:' + pat.id + ':' + pat.pts.length + (pat.sizes ? pat.sizes.join('+') : '');
+    if (!SETS[key]) SETS[key] = autoSets(pat);
+    if (!SETS[key].length) return 0;
+  }
+  if (picks(key).some(i => i >= SETS[key].length)) pickedBy[key] = picks(key).filter(i => i < SETS[key].length);
+  return key;
+}
+/* tamanho de cada grupo de pulsos, em semínimas (para ligar as colcheias do mesmo grupo) */
+function groupsQ(p){
+  const g = isCompound(p) ? Array(p.pts.length / 3).fill(3) : (p.sizes || p.pts.map(() => 1));
+  return g.map(x => x * pulseQ(p));
 }
 
 /* ----- desenhar a figura (notação) ----- */
-function figureSvg(items, n){
+function figureSvg(items, n, grp){
   const o = []; let s = 0;
   items.forEach(d => { o.push({d: Math.abs(d), rest: d < 0, s}); s += Math.abs(d); });
   // espaço de cada figura cresce com a duração, mas sem deixar as colcheias se sobreporem; o conjunto fica centrado
@@ -627,12 +750,18 @@ function figureSvg(items, n){
   let ac = (100 - tot) / 2;
   o.forEach((it, i) => { it.x = ac + w[i] * k / 2 - 2; ac += w[i] * k; });
   const X = it => it.x;
-  const beam = new Set();
+  const beam = new Set(), runs = [];
+  const gb = []; let gc = 0; (grp || [1]).forEach(g => { gb.push(gc); gc += g; });
+  const gi = x => { let k = 0; gb.forEach((bd, j) => { if (x >= bd - 1e-6) k = j; }); return k; };
+  const isE = it => !it.rest && it.d === .5;
   for (let i = 0; i < o.length - 1; i++){
-    const a = o[i], b = o[i + 1];
-    if (!a.rest && !b.rest && a.d === .5 && b.d === .5 && a.s % 1 === 0 && !beam.has(i)){ beam.add(i); beam.add(i + 1); i++; }
+    if (!isE(o[i])) continue;
+    let j = i;
+    while (j + 1 < o.length && isE(o[j + 1]) && gi(o[j + 1].s) === gi(o[i].s)) j++;
+    if (j > i){ runs.push([i, j]); for (let k = i; k <= j; k++) beam.add(k); i = j; }
   }
   const Y = 66, TOP = 32;
+  const isT = it => !it.rest && Math.abs(it.d - T) < 1e-6;
   let g = '';
   o.forEach((it, i) => {
     const x = X(it);
@@ -642,6 +771,7 @@ function figureSvg(items, n){
       } else {
         g += `<path d="M${x - 2},38 L${x + 3},47 L${x - 2},56 L${x + 3},65 Q${x - 4},64 ${x - 1},73" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>`;
       }
+      if (it.d === 1.5) g += `<circle cx="${x + 6}" cy="52" r="1.6" fill="currentColor"/>`;
       return;
     }
     const hollow = it.d >= 2;
@@ -653,9 +783,16 @@ function figureSvg(items, n){
       g += `<path d="M${x + 4.9},${TOP} C${x + 6},${TOP + 9} ${x + 14},${TOP + 8} ${x + 11},${TOP + 20}" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>`;
     }
   });
-  for (let i = 0; i < o.length - 1; i++){
-    if (beam.has(i) && beam.has(i + 1) && o[i].d === .5 && o[i + 1].d === .5 && o[i].s % 1 === 0 && Math.abs(o[i + 1].s - o[i].s - .5) < 1e-6){
-      g += `<line x1="${X(o[i]) + 4.9}" y1="${TOP}" x2="${X(o[i + 1]) + 4.9}" y2="${TOP}" stroke="currentColor" stroke-width="4" stroke-linecap="butt"/>`;
+  runs.forEach(([i, j]) => {
+    g += `<line x1="${X(o[i]) + 4.9}" y1="${TOP}" x2="${X(o[j]) + 4.9}" y2="${TOP}" stroke="currentColor" stroke-width="4" stroke-linecap="butt"/>`;
+  });
+  // tercinas: três notas ligadas por uma barra, com o número 3 em cima
+  for (let i = 0; i + 2 < o.length; i++){
+    if (isT(o[i]) && isT(o[i + 1]) && isT(o[i + 2])){
+      const x1 = X(o[i]) + 4.9, x3 = X(o[i + 2]) + 4.9;
+      g += `<line x1="${x1}" y1="${TOP}" x2="${x3}" y2="${TOP}" stroke="currentColor" stroke-width="4" stroke-linecap="butt"/>` +
+           `<text x="${(x1 + x3) / 2}" y="${TOP - 5}" text-anchor="middle" font-size="13" font-weight="800" font-style="italic" fill="currentColor" font-family="inherit">3</text>`;
+      i += 2;
     }
   }
   return `<svg viewBox="0 0 100 100" aria-hidden="true">${g}</svg>`;
@@ -664,18 +801,18 @@ function renderCards(){
   const box = $('cards'), h = $('cardHint'), n = cardN();
   box.innerHTML = ''; cardEls = []; nowCard = -1;
   if (!n){
-    h.textContent = 'As figuras são para compassos simples de 2, 3 ou 4 tempos (2/4, 3/4 e 4/4). Neste compasso o app só conta o tempo falando “Tá”.';
+    h.textContent = 'Este compasso ainda não tem figuras. O app só conta o tempo falando “Tá”.';
     return;
   }
-  h.textContent = 'Toque nas figuras para escolher (pode ser mais de uma). Ao apertar Vamos!, o app conta um compasso falando “Tá” e depois fala o ritmo de cada figura (Táááá, Táá, Tá, ti-ti), mostrando a figura da vez.';
+  h.textContent = 'Toque nas figuras para escolher (pode ser mais de uma). Ao apertar Vamos!, o app conta um compasso falando “Tá” e depois fala o ritmo de cada figura (Táááá, Táá, Tá, ti-ti, tri-o-la), e o metrônomo divide o tempo igual à figura da vez.';
   SETS[n].forEach((items, i) => {
     const b = document.createElement('button');
     b.type = 'button'; b.className = 'card';
     b.setAttribute('aria-label', 'Figura ' + (i + 1));
-    b.setAttribute('aria-pressed', pickedBy[n].includes(i));
-    b.innerHTML = '<span class="ck">✓</span>' + figureSvg(items, n);
+    b.setAttribute('aria-pressed', picks(n).includes(i));
+    b.innerHTML = '<span class="ck">✓</span>' + figureSvg(items.map(d => d * pulseQ(pat)), n, groupsQ(pat));
     b.onclick = () => {
-      const p = pickedBy[n], k = p.indexOf(i);
+      const p = picks(n), k = p.indexOf(i);
       if (k >= 0) p.splice(k, 1); else p.push(i);
       b.setAttribute('aria-pressed', k < 0);
       savePicked();
@@ -697,12 +834,12 @@ function cancelSpeech(){
   try { speechSynthesis.cancel(); } catch(e){}
 }
 /* sílaba da linguagem rítmica: nota longa = vogal prolongada (Tá, Táá, Tááá, Táááá); colcheia = ti */
-function speakSyl(d){
+function speakSyl(d, label){
   try {
     if (!('speechSynthesis' in window)) return;
     speechSynthesis.cancel();
     const short = d < 1;
-    const u = new SpeechSynthesisUtterance(short ? 'ti' : 'T' + 'á'.repeat(Math.max(1, Math.round(d))));
+    const u = new SpeechSynthesisUtterance(label || (short ? 'ti' : 'T' + 'á'.repeat(Math.max(1, Math.round(d)))));
     u.lang = 'pt-BR'; u.volume = 1;
     // nota mais longa → fala mais devagar, para a vogal durar
     u.rate = short || d <= 1 ? Math.max(1, Math.min(2.2, 0.9 + bpm / 100)) : d >= 3 ? .6 : d >= 2 ? .7 : .85;
@@ -724,11 +861,11 @@ function speak(txt){
 function clearNow(){ setCard(-1); }
 function showNow(it){
   const {bp} = beatsInfo(), nP = pat.pts.length, p = it.p;
-  const n = cardN(), list = n ? pickedBy[n] : [];
+  const n = cardN();
   const bar = Math.floor(p / nP);                       // -1 = compasso de contagem
-  const card = bar >= 0 && list.length ? list[bar % list.length] : -1;
+  const card = it.card;
   setCard(card);
-  if (!speakOn) return;
+  if (!speakOn || susOn) return;
   if (card < 0){                                        // contagem (ou sem figura escolhida): Tá a cada tempo
     if ((((p % bp) + bp) % bp) === 0) speak('Tá');
     return;
@@ -740,7 +877,9 @@ function showNow(it){
     const a = Math.abs(d), st = s; s += a;
     if (d < 0 || st < pos - 1e-6 || st >= pos + 1 - 1e-6) return;
     const delay = (st - pos) * beatMs;
-    if (delay < 5) speakSyl(a); else speechTimers.push(setTimeout(() => speakSyl(a), delay));
+    // tercina: tri-o-la
+    const lab = Math.abs(a - T) < 1e-6 ? ['tri', 'ó', 'la'][Math.round((st % 1) * 3) % 3] : undefined;
+    if (delay < 5) speakSyl(a * pulseQ(pat), lab); else speechTimers.push(setTimeout(() => speakSyl(a * pulseQ(pat), lab), delay));
   });
 }
 
@@ -763,9 +902,19 @@ $('oSpeak').checked = speakOn;
 $('oSpeak').onchange = () => {
   speakOn = $('oSpeak').checked;
   try { localStorage.setItem('maestro.speak', speakOn ? '1' : '0'); } catch(e){}
-  if (speakOn) speak('Tá'); else cancelSpeech();
+  if (speakOn && !susOn) speak('Tá'); else cancelSpeech();
 };
-if (!('speechSynthesis' in window)) $('lSpeak').hidden = true;
+$('oSus').checked = susOn;
+$('oSus').onchange = () => {
+  susOn = $('oSus').checked; cancelSpeech();
+  try { localStorage.setItem('maestro.sus', susOn ? '1' : '0'); } catch(e){}
+};
+$('oSub').checked = subOn;
+$('oSub').onchange = () => {
+  subOn = $('oSub').checked;
+  try { localStorage.setItem('maestro.sub', subOn ? '1' : '0'); } catch(e){}
+};
+
 
 build(); buildSigs(); buildChars(); setBpm(initBpm); requestAnimationFrame(frame);
 </script>
