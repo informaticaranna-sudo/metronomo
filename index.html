@@ -6,8 +6,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&display=swap" rel="stylesheet">
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#ffd23f">
-<link rel="icon" href="icon-192.png">
-<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" type="image/png" href="favicon-64.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Metrônomo de Regência</title>
@@ -85,6 +85,33 @@ details#creator summary{font-weight:800;font-size:1.1rem;cursor:pointer}
 .chars button:active{transform:translateY(3px);box-shadow:0 1px 0 var(--line)}
 .chars button[aria-pressed=true]{background:var(--sun)}
 .credit{color:var(--mute);font-size:.9rem;font-weight:700;text-align:center;padding:4px 0 8px}
+.tabs{display:flex;gap:8px;width:min(92vw,520px)}
+.tabs button{flex:1;padding:10px 6px;border-radius:18px;border:3px solid var(--line);background:var(--btn);color:var(--ink);font:inherit;font-weight:800;font-size:1.05rem;cursor:pointer;box-shadow:0 4px 0 var(--line)}
+.tabs button[aria-pressed=true]{background:var(--sun);color:var(--onsun)}
+.tabs button:active{transform:translateY(3px);box-shadow:0 1px 0 var(--line)}
+.chips,.grid{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.mini{padding:8px 12px;border-radius:14px;border:3px solid var(--line);background:var(--btn);color:var(--ink);font:inherit;font-weight:800;font-size:.95rem;cursor:pointer;box-shadow:0 3px 0 var(--line);touch-action:manipulation}
+.mini:active{transform:translateY(2px);box-shadow:0 1px 0 var(--line)}
+.mini[aria-pressed=true]{background:var(--sun);color:var(--onsun)}
+.mini.big{min-width:54px;font-size:1.05rem}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.opts label{display:flex;flex-direction:column;gap:3px;font-weight:700;font-size:.9rem}
+.opts select,#lib,textarea,#libName{font:inherit;padding:8px 10px;border-radius:12px;border:3px solid var(--line);background:var(--field);color:var(--ink)}
+textarea{width:100%;resize:vertical}
+#lib{flex:1;min-width:0}
+.checks{display:flex;flex-wrap:wrap;gap:14px;font-weight:700}
+.checks label{display:flex;align-items:center;gap:6px}
+.checks input{width:20px;height:20px;accent-color:var(--c2)}
+hr{border:0;border-top:3px dashed var(--line);width:100%;margin:4px 0;opacity:.4}
+.score{max-height:260px;overflow:auto;position:relative;display:flex;flex-wrap:wrap;gap:10px 14px;align-content:flex-start;padding:10px;border:3px solid var(--line);border-radius:18px;background:var(--soft)}
+.score>.hint{width:100%}
+.bar{display:flex;gap:4px;padding-right:10px;border-right:3px solid var(--line)}
+.nt{display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:44px;padding:5px 6px;border-radius:12px;background:var(--btn);border:2px solid transparent;font-weight:800;line-height:1.1;cursor:default;transition:transform .08s}
+.nt b{font-size:1.15rem}
+.nt small{font-size:.7rem;color:var(--mute);font-weight:700}
+.nt.rest{opacity:.65}
+.nt.now{background:var(--sun);color:var(--onsun);border-color:var(--line);transform:scale(1.12)}
+.nt.now small{color:var(--onsun)}
 .theme{display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-weight:800;font-size:1.05rem}
 .theme>span{flex:1 1 100%}
 .theme button,.theme label.pick{width:44px;height:44px;border-radius:50%;border:3px solid var(--line);background:var(--btn);font-size:1.4rem;line-height:1;cursor:pointer;box-shadow:0 4px 0 var(--line);touch-action:manipulation;padding:0;display:inline-flex;align-items:center;justify-content:center;overflow:hidden;position:relative}
@@ -94,11 +121,40 @@ details#creator summary{font-weight:800;font-size:1.1rem;cursor:pointer}
 .theme .modes{display:flex;gap:8px;margin-right:6px}
 .theme label.pick input{position:absolute;inset:-10px;width:70px;height:70px;opacity:0;cursor:pointer}
 .theme .reset{width:auto;border-radius:16px;padding:0 12px;font:inherit;font-size:.95rem;font-weight:800;color:var(--ink)}
+details#editor{border:3px dashed var(--line);border-radius:18px;padding:8px 12px;background:var(--soft)}
+details#editor summary{font-weight:800;font-size:1.1rem;cursor:pointer}
+.mini small{display:block;font-size:.65rem;color:var(--mute);font-weight:700;line-height:1}
+.mini[aria-pressed=true] small{color:var(--onsun)}
+.mini.big{line-height:1.1}
+.score.edit .nt{cursor:pointer}
+.score.edit .nt:hover{border-color:var(--c3)}
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.card{position:relative;aspect-ratio:1/1;padding:0;border-radius:20px;border:3px solid var(--line);background:var(--field);color:var(--ink);cursor:pointer;box-shadow:0 4px 0 var(--line);touch-action:manipulation}
+.card svg{width:100%;height:100%;display:block}
+.card:active{transform:translateY(3px);box-shadow:0 1px 0 var(--line)}
+.card[aria-pressed=true]{background:var(--sun);color:var(--onsun)}
+.card.now{outline:5px solid var(--prep);outline-offset:2px}
+.card .ck{position:absolute;top:6px;left:6px;width:22px;height:22px;border-radius:50%;border:2px solid var(--line);background:var(--panel);color:transparent;font-size:.8rem;line-height:18px;font-weight:800;text-align:center}
+.card[aria-pressed=true] .ck{background:var(--c2);color:#fff}
+.chk{display:flex;align-items:center;gap:8px;font-weight:700}
+.chk input{width:22px;height:22px;accent-color:var(--c2)}
 </style>
 </head>
 <body>
 <h1>🎵 <span class="r">Meu</span> <span class="b">Metrônomo</span> <span class="g">Maestro</span> 🎶<small>Siga a bolinha e aprenda a reger!</small></h1>
+<div class="tabs" id="tabs">
+  <button type="button" id="tabM" aria-pressed="true">🥁 Metrônomo</button>
+  <button type="button" id="tabS" aria-pressed="false">🎼 Solfejo</button>
+</div>
+
 <div id="stage"><svg id="svg" viewBox="0 0 100 100" role="img" aria-label="Movimento de regência do compasso"></svg></div>
+
+<div class="panel" id="scorePanel" hidden>
+  <strong style="font-size:1.15rem">Escolha as figuras do ritmo 🎵</strong>
+  <div class="cards" id="cards"></div>
+  <p class="hint" id="cardHint"></p>
+  <label class="chk" id="lSpeak"><input type="checkbox" id="oSpeak" checked> 🔊 Falar as sílabas (Tá, ti)</label>
+</div>
 
 <div class="panel">
   <div class="sigs" id="sigs"></div>
@@ -135,6 +191,7 @@ details#creator summary{font-weight:800;font-size:1.1rem;cursor:pointer}
     <button type="button" class="reset" id="bgReset">Padrão</button>
   </div>
 
+  <div id="ctrl" style="display:flex;flex-direction:column;gap:16px">
   <div>
     <div class="tempo">
       <button class="step" id="minus" aria-label="Diminuir andamento">−</button>
@@ -149,6 +206,7 @@ details#creator summary{font-weight:800;font-size:1.1rem;cursor:pointer}
     <button id="tap">👆 Tap</button>
   </div>
   <p class="hint">Dica: aperte Espaço para começar e parar ✨</p>
+  </div>
 </div>
 
 <button id="install" hidden>📲 Instalar app</button>
@@ -248,6 +306,7 @@ function click(time, beat){
 function scheduler(){
   while (nextTime < ctx.currentTime + .12){
     const dur = 60 / bpm;
+    if (scoreOn){ noteQueue.push({time: nextTime, p: tickN}); tickN++; }
     click(nextTime, nextBeat);
     queue.push({beat:nextBeat, time:nextTime, dur});
     nextTime += dur;
@@ -258,11 +317,15 @@ function start(){
   if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
   ctx.resume();
   queue = []; cur = null; nextBeat = 0; nextTime = ctx.currentTime + .08;
+  noteQueue = []; clearNow();
+  scoreOn = view === 'solfa';
+  tickN = scoreOn ? -pat.pts.length : 0;     // um compasso de contagem antes das figuras
   playing = true; scheduler(); timer = setInterval(scheduler, 25);
   $('play').textContent = '⏹ Parar'; $('play').setAttribute('aria-pressed', true);
 }
 function stop(){
-  playing = false; clearInterval(timer); queue = []; cur = null;
+  cancelSpeech();
+  playing = false; clearInterval(timer); clearTimeout(finishTO); queue = []; cur = null; noteQueue = []; clearNow();
   $('play').textContent = '▶ Vamos!'; $('play').setAttribute('aria-pressed', false);
   segs.forEach(s => s.classList.remove('on'));
   const p = pat.pts[0]; dot.setAttribute('transform', `translate(${p[0]} ${p[1]})`);
@@ -273,6 +336,7 @@ let lastOn = -1;
 function frame(){
   if (playing){
     const now = ctx.currentTime;
+    while (noteQueue.length && noteQueue[0].time <= now) showNow(noteQueue.shift());
     while (queue.length && queue[0].time <= now){
       cur = queue.shift();
       if (segs[cur.beat]){
@@ -316,7 +380,9 @@ $('tap').onclick = () => {
 };
 $('play').onclick = () => playing ? stop() : start();
 document.addEventListener('keydown', e => {
-  if (e.target.tagName === 'INPUT' && e.key.startsWith('Arrow')) return;
+  const tg = e.target.tagName;
+  if (tg === 'TEXTAREA' || tg === 'SELECT' || (tg === 'INPUT' && e.target.type !== 'range')) return;
+  if (tg === 'INPUT' && e.key.startsWith('Arrow')) return;
   if (e.code === 'Space'){ e.preventDefault(); playing ? stop() : start(); }
   else if (e.key === 'ArrowRight') setBpm(bpm+1);
   else if (e.key === 'ArrowLeft')  setBpm(bpm-1);
@@ -328,9 +394,11 @@ document.addEventListener('keydown', e => {
 /* ---------- Gerador de compassos ---------- */
 let custom = [];
 function choose(p){
+  if (playing && view === 'solfa') stop();
   pat = p; queue = []; cur = null; nextBeat = 0;
   if (ctx) nextTime = ctx.currentTime + .08;
   build(); buildSigs();
+  if (view === 'solfa') renderScore();
 }
 function saveCustom(){
   try { localStorage.setItem('maestro.custom', JSON.stringify(custom.map(c => ({sizes:c.sizes, id:c.id, name:c.name})))); } catch(e){}
@@ -414,7 +482,7 @@ if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catc
 
 /* ---------- Personagens ---------- */
 let charKind = 'carinha';
-try { const k = localStorage.getItem('maestro.char'); if (['bolinha','carinha','coelho','menino','menina'].includes(k)) charKind = k; } catch(e){}
+try { const k = localStorage.getItem('maestro.char'); if (['bolinha','carinha','coelho','tartaruga','menino','menina'].includes(k)) charKind = k; } catch(e){}
 function drawChar(g, kind){
   const E = (n, a) => el(n, a, g), ink = '#3b2a1a', skin = '#ffd3a8', hair = '#6b3f1d';
   const eyes = y => { E('circle',{cx:-1.7,cy:y,r:.8,fill:ink}); E('circle',{cx:1.7,cy:y,r:.8,fill:ink}); };
@@ -432,6 +500,15 @@ function drawChar(g, kind){
     eyes(-.6);
     E('ellipse',{cx:0,cy:.9,rx:.9,ry:.65,fill:'#ff7aa2'});
     E('path',{d:'M0,1.5 L0,2.4 M0,2.4 Q-1.2,3.4 -2,2.6 M0,2.4 Q1.2,3.4 2,2.6',fill:'none',stroke:ink,'stroke-width':.5,'stroke-linecap':'round'});
+  } else if (kind === 'tartaruga'){
+    const gd = '#2e9e57', gl = '#8fd694', gs = '#1f6e3b';
+    [[-3.2,3.6],[3.2,3.6]].forEach(([x,y]) => E('ellipse',{cx:x,cy:y,rx:1.4,ry:1,fill:gl,stroke:gs,'stroke-width':.5}));
+    E('ellipse',{cx:5.3,cy:.4,rx:2.5,ry:2.2,fill:gl,stroke:gs,'stroke-width':.6});
+    E('circle',{cx:6.1,cy:-.1,r:.45,fill:ink});
+    E('path',{d:'M5.2,1.3 Q6.1,1.9 7,1.3',fill:'none',stroke:ink,'stroke-width':.4,'stroke-linecap':'round'});
+    E('path',{d:'M-4.6,2.6 A4.6 4.6 0 0 1 4.6,2.6 Z',fill:gd,stroke:gs,'stroke-width':.7,'stroke-linejoin':'round'});
+    E('path',{d:'M-1.6,-1 L1.6,-1 L2.4,1 L0,2.6 L-2.4,1 Z M-4,2.6 L-2.4,1 M4,2.6 L2.4,1 M0,2.6 L0,2.6 M-1.6,-1 L-2.2,-1.9 M1.6,-1 L2.2,-1.9',fill:'#5cc47a',stroke:gs,'stroke-width':.45,'stroke-linejoin':'round','stroke-linecap':'round'});
+    E('path',{d:'M-5,2.6 L5,2.6',stroke:gs,'stroke-width':.7,'stroke-linecap':'round'});
   } else if (kind === 'menino'){
     E('circle',{r:4.8,fill:skin,stroke:'#c98a52','stroke-width':.8});
     fringe(); eyes(.3); smile(1.9);
@@ -447,7 +524,7 @@ function drawChar(g, kind){
     eyes(-1); smile(1.3);
   }
 }
-const CHARS = [['bolinha','🟣','Bolinha'],['carinha','🙂','Carinha'],['coelho','🐰','Coelho'],['menino','👦','Menino'],['menina','👧','Menina']];
+const CHARS = [['bolinha','🟣','Bolinha'],['carinha','🙂','Carinha'],['coelho','🐰','Coelho'],['tartaruga','🐢','Tartaruga'],['menino','👦','Menino'],['menina','👧','Menina']];
 function buildChars(){
   const box = $('chars'); box.innerHTML = '<span>Quem vai guiar?</span>';
   CHARS.forEach(([k, em, nome]) => {
@@ -502,7 +579,195 @@ $('bgPick').oninput = e => setBg(e.target.value);
 $('bgReset').onclick = () => { bgCustom = null; saveTheme(); applyTheme(); };
 applyTheme();
 
-build(); buildSigs(); buildChars(); setBpm(80); requestAnimationFrame(frame);
+/* ---------- Solfejo: linguagem rítmica com figuras ---------- */
+let view = 'metro', initBpm = 80;
+let scoreOn = false, tickN = 0, noteQueue = [], finishTO = null, cardEls = [], nowCard = -1;
+let pickedBy = {2: [], 3: [], 4: []}, speakOn = true;
+
+/* cada figura é uma lista de durações em semínimas (número negativo = pausa) */
+const SETS = {
+  2: [[2],[1,1],[1,.5,.5],[.5,.5,1],[.5,.5,.5,.5],[1,-1],[-1,1],[1.5,.5],[-1,.5,.5]],
+  3: [[3],[1.5,.5,1],[1,1,1],[1,2],[1,-1,1],[2,.5,.5],[.5,.5,.5,.5,1],[1,.5,.5,1],[1,.5,.5,.5,.5]],
+  4: [[4],[2,2],[1,1,1,1],[2,1,1],[1,1,2],[1,.5,.5,2],[.5,.5,.5,.5,1,1],[1.5,.5,1,1],[1,-1,1,1]]
+};
+try {
+  const p = JSON.parse(localStorage.getItem('maestro.cards') || '{}');
+  [2, 3, 4].forEach(n => { if (Array.isArray(p[n])) pickedBy[n] = p[n].filter(i => Number.isInteger(i) && i >= 0 && i < SETS[n].length); });
+  if (localStorage.getItem('maestro.speak') === '0') speakOn = false;
+} catch(e){}
+function savePicked(){ try { localStorage.setItem('maestro.cards', JSON.stringify(pickedBy)); } catch(e){} }
+
+/* quanto vale um pulso do metrônomo, em semínimas (4/4 → 1, 6/8 → 0,5, 2/2 → 2) */
+function pulseQ(p){
+  const m = /\/(\d+)$/.exec(p.id);
+  if (m && +m[1] > 0) return 4 / +m[1];
+  return p.sizes ? (p.sizes.every(x => x === 1) ? 1 : .5) : 1;
+}
+function isCompound(p){ return pulseQ(p) === .5 && p.pts.length % 3 === 0 && (!p.sizes || p.sizes.every(x => x === 3)); }
+
+/* compasso: quantos tempos principais e se as figuras (em semínimas) se aplicam */
+function beatsInfo(){
+  const comp = isCompound(pat);
+  return {n: comp ? pat.pts.length / 3 : pat.pts.length, bp: comp ? 3 : 1, comp};
+}
+function cardN(){
+  const {n, comp} = beatsInfo();
+  const simple = !comp && pulseQ(pat) === 1 && (!pat.sizes || pat.sizes.every(x => x === 1));
+  return simple && SETS[n] ? n : 0;
+}
+
+/* ----- desenhar a figura (notação) ----- */
+function figureSvg(items, n){
+  const o = []; let s = 0;
+  items.forEach(d => { o.push({d: Math.abs(d), rest: d < 0, s}); s += Math.abs(d); });
+  // espaço de cada figura cresce com a duração, mas sem deixar as colcheias se sobreporem; o conjunto fica centrado
+  const w = o.map(it => 7 + 10 * Math.pow(it.d, .7));
+  let tot = w.reduce((a, b) => a + b, 0);
+  const k = tot > 72 ? 72 / tot : 1; tot *= k;
+  let ac = (100 - tot) / 2;
+  o.forEach((it, i) => { it.x = ac + w[i] * k / 2 - 2; ac += w[i] * k; });
+  const X = it => it.x;
+  const beam = new Set();
+  for (let i = 0; i < o.length - 1; i++){
+    const a = o[i], b = o[i + 1];
+    if (!a.rest && !b.rest && a.d === .5 && b.d === .5 && a.s % 1 === 0 && !beam.has(i)){ beam.add(i); beam.add(i + 1); i++; }
+  }
+  const Y = 66, TOP = 32;
+  let g = '';
+  o.forEach((it, i) => {
+    const x = X(it);
+    if (it.rest){
+      if (it.d === .5){
+        g += `<circle cx="${x - 2}" cy="52" r="2.4" fill="currentColor"/><path d="M${x},53 L${x - 4},72" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>`;
+      } else {
+        g += `<path d="M${x - 2},38 L${x + 3},47 L${x - 2},56 L${x + 3},65 Q${x - 4},64 ${x - 1},73" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>`;
+      }
+      return;
+    }
+    const hollow = it.d >= 2;
+    g += `<ellipse cx="${x}" cy="${Y}" rx="5.4" ry="3.8" transform="rotate(-20 ${x} ${Y})" ` +
+         (hollow ? 'fill="none" stroke="currentColor" stroke-width="1.8"' : 'fill="currentColor"') + '/>';
+    if (it.d !== 4) g += `<line x1="${x + 4.9}" y1="${Y - 1.5}" x2="${x + 4.9}" y2="${TOP}" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>`;
+    if (it.d === 1.5 || it.d === 3) g += `<circle cx="${x + 10}" cy="${Y - 3}" r="1.5" fill="currentColor"/>`;
+    if (it.d === .5 && !beam.has(i)){
+      g += `<path d="M${x + 4.9},${TOP} C${x + 6},${TOP + 9} ${x + 14},${TOP + 8} ${x + 11},${TOP + 20}" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>`;
+    }
+  });
+  for (let i = 0; i < o.length - 1; i++){
+    if (beam.has(i) && beam.has(i + 1) && o[i].d === .5 && o[i + 1].d === .5 && o[i].s % 1 === 0 && Math.abs(o[i + 1].s - o[i].s - .5) < 1e-6){
+      g += `<line x1="${X(o[i]) + 4.9}" y1="${TOP}" x2="${X(o[i + 1]) + 4.9}" y2="${TOP}" stroke="currentColor" stroke-width="4" stroke-linecap="butt"/>`;
+    }
+  }
+  return `<svg viewBox="0 0 100 100" aria-hidden="true">${g}</svg>`;
+}
+function renderCards(){
+  const box = $('cards'), h = $('cardHint'), n = cardN();
+  box.innerHTML = ''; cardEls = []; nowCard = -1;
+  if (!n){
+    h.textContent = 'As figuras são para compassos simples de 2, 3 ou 4 tempos (2/4, 3/4 e 4/4). Neste compasso o app só conta o tempo falando “Tá”.';
+    return;
+  }
+  h.textContent = 'Toque nas figuras para escolher (pode ser mais de uma). Ao apertar Vamos!, o app conta um compasso falando “Tá” e depois fala o ritmo de cada figura (Táááá, Táá, Tá, ti-ti), mostrando a figura da vez.';
+  SETS[n].forEach((items, i) => {
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'card';
+    b.setAttribute('aria-label', 'Figura ' + (i + 1));
+    b.setAttribute('aria-pressed', pickedBy[n].includes(i));
+    b.innerHTML = '<span class="ck">✓</span>' + figureSvg(items, n);
+    b.onclick = () => {
+      const p = pickedBy[n], k = p.indexOf(i);
+      if (k >= 0) p.splice(k, 1); else p.push(i);
+      b.setAttribute('aria-pressed', k < 0);
+      savePicked();
+    };
+    box.appendChild(b); cardEls.push(b);
+  });
+}
+function setCard(i){
+  if (nowCard >= 0 && cardEls[nowCard]) cardEls[nowCard].classList.remove('now');
+  nowCard = i;
+  if (i >= 0 && cardEls[i]){ cardEls[i].classList.add('now'); }
+}
+function renderScore(){ renderCards(); }
+
+/* ----- falar “Tá” (voz do aparelho) ----- */
+let speechTimers = [];
+function cancelSpeech(){
+  speechTimers.forEach(clearTimeout); speechTimers = [];
+  try { speechSynthesis.cancel(); } catch(e){}
+}
+/* sílaba da linguagem rítmica: nota longa = vogal prolongada (Tá, Táá, Tááá, Táááá); colcheia = ti */
+function speakSyl(d){
+  try {
+    if (!('speechSynthesis' in window)) return;
+    speechSynthesis.cancel();
+    const short = d < 1;
+    const u = new SpeechSynthesisUtterance(short ? 'ti' : 'T' + 'á'.repeat(Math.max(1, Math.round(d))));
+    u.lang = 'pt-BR'; u.volume = 1;
+    // nota mais longa → fala mais devagar, para a vogal durar
+    u.rate = short || d <= 1 ? Math.max(1, Math.min(2.2, 0.9 + bpm / 100)) : d >= 3 ? .6 : d >= 2 ? .7 : .85;
+    speechSynthesis.speak(u);
+  } catch(e){}
+}
+function speak(txt){
+  try {
+    if (!('speechSynthesis' in window)) return;
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(txt);
+    u.lang = 'pt-BR'; u.volume = 1;
+    u.rate = Math.max(1, Math.min(2.2, 0.9 + bpm / 100));
+    speechSynthesis.speak(u);
+  } catch(e){}
+}
+
+/* ----- a cada pulso do metrônomo ----- */
+function clearNow(){ setCard(-1); }
+function showNow(it){
+  const {bp} = beatsInfo(), nP = pat.pts.length, p = it.p;
+  const n = cardN(), list = n ? pickedBy[n] : [];
+  const bar = Math.floor(p / nP);                       // -1 = compasso de contagem
+  const card = bar >= 0 && list.length ? list[bar % list.length] : -1;
+  setCard(card);
+  if (!speakOn) return;
+  if (card < 0){                                        // contagem (ou sem figura escolhida): Tá a cada tempo
+    if ((((p % bp) + bp) % bp) === 0) speak('Tá');
+    return;
+  }
+  // figura escolhida: fala cada nota na hora certa, com a duração dela; pausas ficam em silêncio
+  const pos = p - bar * nP, beatMs = 60000 / bpm;
+  let s = 0;
+  SETS[n][card].forEach(d => {
+    const a = Math.abs(d), st = s; s += a;
+    if (d < 0 || st < pos - 1e-6 || st >= pos + 1 - 1e-6) return;
+    const delay = (st - pos) * beatMs;
+    if (delay < 5) speakSyl(a); else speechTimers.push(setTimeout(() => speakSyl(a), delay));
+  });
+}
+
+/* ----- telas ----- */
+function setView(v){
+  if (playing) stop();
+  view = v;
+  $('tabM').setAttribute('aria-pressed', v === 'metro');
+  $('tabS').setAttribute('aria-pressed', v === 'solfa');
+  $('scorePanel').hidden = v !== 'solfa';
+  // andamento e botão de tocar acompanham a tela
+  if (v === 'solfa') $('scorePanel').appendChild($('ctrl'));
+  else $('sigs').parentNode.appendChild($('ctrl'));
+  if (v === 'solfa') renderScore();
+}
+$('tabM').onclick = () => setView('metro');
+$('tabS').onclick = () => setView('solfa');
+
+$('oSpeak').checked = speakOn;
+$('oSpeak').onchange = () => {
+  speakOn = $('oSpeak').checked;
+  try { localStorage.setItem('maestro.speak', speakOn ? '1' : '0'); } catch(e){}
+  if (speakOn) speak('Tá'); else cancelSpeech();
+};
+if (!('speechSynthesis' in window)) $('lSpeak').hidden = true;
+
+build(); buildSigs(); buildChars(); setBpm(initBpm); requestAnimationFrame(frame);
 </script>
 </body>
 </html>
